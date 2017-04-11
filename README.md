@@ -12,7 +12,7 @@ Here is a first release for key functionality.
 
 ### Binary
 
-Download binary from [Release](consul-tags/releases/latest) page.
+Download binary from [Release](../../releases/latest) page.
 
 ### Docker Hub
 
