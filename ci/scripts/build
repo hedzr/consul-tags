@@ -5,6 +5,7 @@ set -e
 PROJ=consul-tags
 PKG_SRC=${PKG_SRC:-.}
 
+env|sort
 
 # Get rid of existing binaries
 rm -f bin/${PROJ}*
@@ -83,3 +84,4 @@ if [ "$1" != "--ci" ]; then
 fi
 
 
+ls -la
