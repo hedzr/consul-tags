@@ -29,7 +29,7 @@ for OS in ${OS_PLATFORM_ARG[@]}; do
     #      ls -l "bin/${PROJ}_$OS-$ARCH"
     GOARCH=$ARCH GOOS=$OS CGO_ENABLED=0 go build -ldflags "-s -w" -o "bin/${PROJ}_$OS-$ARCH" $PKG_SRC
     if [ "$OS" == "linux" ]; then
-      ls -l "bin/${PROJ}_$OS-$ARCH" && \
+      #ls -l "bin/${PROJ}_$OS-$ARCH" && \
       # upx "bin/${PROJ}_$OS-$ARCH" && \
       ls -l "bin/${PROJ}_$OS-$ARCH" && echo
     fi
@@ -86,7 +86,9 @@ if [ "$1" != "--ci" ]; then
 fi
 
 
+echo "project.dir -----------"
 ls -la
-ls -la output/
+echo "bin.dir -----------"
+ls -la bin/
 
 :
