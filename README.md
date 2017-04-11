@@ -15,20 +15,20 @@ Here is a first release for key functionality.
 
 ### Docker Hub
 
-
+WAIT A MINUTE.
 
 ### Go Build
 
 clone the repo and build:
 
 ```bash
-go build -o consul-tags hedzr.com/consul-tags
+go build -o consul-tags github.com/hedzr/consul-tags
 ```
 
 mixin:
 
 ```bash
-go get -u hedzr.com/consul-tags/objects/consul
+go get -u github.com/hedzr/consul-tags/objects/consul
 ```
 
 
