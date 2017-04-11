@@ -70,7 +70,7 @@ fi
 
 
 chmod +x bin/${PROJ}*
-cd bin; tar czf ../${PROJ}.tgz ${PROJ}*; cd ..
+cd bin; tar czf ../output/${PROJ}.tgz ${PROJ}*; cd ..
 
 
 
@@ -85,3 +85,7 @@ fi
 
 
 ls -la
+ls -la output/
+tar tzf output/${PROJ}.tgz
+
+:
