@@ -1,7 +1,6 @@
 # Consul Service Tags Modifier
 
-[![build status](https://git.22os.com/hedzr/devops-tool/badges/master/build.svg)](https://git.22os.com/hedzr/devops-tool/commits/master)
-[![coverage report](https://git.22os.com/hedzr/devops-tool/badges/master/coverage.svg)](https://git.22os.com/hedzr/devops-tool/commits/master)
+[![Build Status](https://travis-ci.org/hedzr/consul-tags.svg?branch=master)](https://travis-ci.org/hedzr/consul-tags)
 
 `consul-tags` can add, remove tag(s) of a consul service (one or all its instances).
 
