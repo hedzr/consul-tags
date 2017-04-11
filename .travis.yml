@@ -1,10 +1,10 @@
 language: go
 go:
-- tip
+  - tip
 install:
-- go get -d -v ./...
+  - go get -d -v ./...
 script:
-- ci/scripts/build --ci
+  - ci/scripts/build --ci
 deploy:
   provider: releases
   api_key:
@@ -16,5 +16,7 @@ deploy:
     - bin/consul-tags_darwin-386.gz
     - bin/consul-tags_windows-amd64.gz
     - bin/consul-tags_windows-386.gz
+  skip_cleanup: true
   on:
+    # tags: true
     repo: hedzr/consul-tags
