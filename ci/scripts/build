@@ -36,6 +36,8 @@ for OS in ${OS_PLATFORM_ARG[@]}; do
     if [ ! -f "bin/${PROJ}_$OS-$ARCH" ]; then
       exit 9
     fi
+    chmod +x "bin/${PROJ}_$OS-$ARCH"
+    gzip "bin/${PROJ}_$OS-$ARCH"
   done
 done
 
@@ -69,8 +71,8 @@ fi
 
 
 
-chmod +x bin/${PROJ}*
-cd bin; tar czf ../output/${PROJ}.tgz ${PROJ}*; cd ..
+#chmod +x bin/${PROJ}*
+#cd bin; tar czvf ../output/${PROJ}.tgz ${PROJ}*; cd ..
 
 
 
@@ -86,6 +88,5 @@ fi
 
 ls -la
 ls -la output/
-tar tzf output/${PROJ}.tgz
 
 :
