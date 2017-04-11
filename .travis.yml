@@ -18,5 +18,5 @@ deploy:
     - bin/consul-tags_windows-386.gz
   skip_cleanup: true
   on:
-    # tags: true
+    tags: true
     repo: hedzr/consul-tags
