@@ -1,7 +1,6 @@
 # Consul Service Tags Modifier
 
 [![Build Status](https://travis-ci.org/hedzr/consul-tags.svg?branch=master)](https://travis-ci.org/hedzr/consul-tags)
-[![license](https://img.shields.io/npm/l/automatic-release.svg?maxAge=3600&style=flat)](https://github.com/dominique-mueller/automatic-release/LICENSE)
 
 `consul-tags` can add, remove tag(s) of a consul service (one or all its instances).
 
