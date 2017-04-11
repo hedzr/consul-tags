@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 	"gopkg.in/urfave/cli.v2"
-	"hedzr.com/consul-tags/objects/consul"
+	"github.com/hedzr/consul-tags/objects/consul"
 )
 
 var Commands = []*cli.Command{

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"gopkg.in/urfave/cli.v2"
 	"gopkg.in/yaml.v2"
-	"hedzr.com/consul-tags/objects"
+	"github.com/hedzr/consul-tags/objects"
 	"os"
 	"path"
 )

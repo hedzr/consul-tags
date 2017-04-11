@@ -2,7 +2,7 @@ package util_test
 
 import (
 	"fmt"
-	"hedzr.com/consul-tags/util"
+	"github.com/hedzr/consul-tags/util"
 	"strings"
 	"testing"
 )

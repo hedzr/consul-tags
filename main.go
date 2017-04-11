@@ -8,8 +8,8 @@ import (
 
 	log "github.com/cihub/seelog"
 
-	"hedzr.com/consul-tags/cmd"
-	"hedzr.com/consul-tags/objects/consul"
+	"github.com/hedzr/consul-tags/cmd"
+	"github.com/hedzr/consul-tags/objects/consul"
 )
 
 const (

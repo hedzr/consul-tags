@@ -4,7 +4,7 @@ import (
 	"fmt"
 	log "github.com/cihub/seelog"
 	"github.com/hashicorp/consul/api"
-	"hedzr.com/consul-tags/util"
+	"github.com/hedzr/consul-tags/util"
 	_ "log"
 	"strconv"
 	"strings"

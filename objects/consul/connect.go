@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/hashicorp/consul/api"
 	"gopkg.in/urfave/cli.v2"
-	"hedzr.com/consul-tags/util"
+	"github.com/hedzr/consul-tags/util"
 	"net/http"
 	"time"
 	//"log"
