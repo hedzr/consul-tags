@@ -1,0 +1,110 @@
+# See docs/examples here:
+# http://doc.gitlab.com/ce/ci/quick_start/README.html
+# http://doc.gitlab.com/ce/ci/yaml/README.html
+
+# GitLab CI template for Go tests. Note this installs
+# a new working copy of Go (1.8 in this case)
+# in a non-standard path such that sudo/root is not
+# needed for the install stage.
+
+# note that this particular install-environment stage
+# is overly verbose in order to debug anything tricky
+# or weird in your environment - feel free to trim it
+# down as needed
+
+variables:
+  NONSENSITIVE_VAR_1: var1
+  #PROJ_NAMESPACE: hedzr.com
+  #PROJ_NAME: consul-tags
+
+before_script:
+#  - 'export PROJ_NAMESPACE=hedzr.com'
+#  - 'export PROJ_NAME=$CI_PROJECT_NAME'
+#  - 'export PROJ_NAME=consul-tags'
+  - 'export BIN_NAME=$PROJ_NAME'
+  - 'export GOVER=1.8'
+  - 'export GOROOT=$HOME/golang/go; export GOPATH=$HOME/gopath; export PATH=$PATH:$GOROOT/bin; export PATH=$PATH:$GOPATH/bin'
+  - 'export CURRENT_BUILD_PATH=$(pwd)'
+  - 'export REAL_BUILD_PATH=$GOPATH/src/$PROJ_NAMESPACE/$PROJ_NAME'
+  #- export GOPATH=$HOME/go
+  #- 'echo -e "GOPATH=$GOPATH\nGOROOT=$GOROOT\n"'
+  #- export GO_PROJECT_PATH="$GOPATH/src/git.suweia.net/$CI_PROJECT_NAMESPACE"
+  #- export PROJECT_PATH="$GO_PROJECT_PATH/$CI_PROJECT_NAME"
+  #- '[ ! -d $GO_PROJECT_PATH ] && mkdir -p $GO_PROJECT_PATH'
+  #- ln -sf $(pwd) $GO_PROJECT_PATH
+  #- ls -la --color $GO_PROJECT_PATH
+  #- 'echo -e "PROJECT_PATH=$PROJECT_PATH\nPWD=$(pwd)\nGO_PROJECT_PATH=$GO_PROJECT_PATH\n"'
+  #- cd $PROJECT_PATH
+
+stages:
+  - install-environment
+  - prepare
+  - build
+  - test
+  - publish
+
+install-go:
+  stage: install-environment
+  script:
+    - 'echo "PATH: $PATH"'
+    #- rm -rf $HOME/golang $HOME/gopath
+    #- mkdir -p $HOME/golang # for GOROOT (contains the Go binary & core packages)
+    #- mkdir -p $HOME/gopath # for GOPATH (contains code and external packages)
+    - '[ -d $HOME/golang ] || mkdir $HOME/golang; [ -d $HOME/gopath ] || mkdir $HOME/gopath; '
+    - '[ -f go$GOVER.linux-amd64.tar.gz ] || curl -sSL http://storage.googleapis.com/golang/go$GOVER.linux-amd64.tar.gz 2>/dev/null > go$GOVER.linux-amd64.tar.gz'
+    - '[ -f $HOME/golang/bin/go ] || tar -C $HOME/golang -xzf go$GOVER.linux-amd64.tar.gz'
+    - 'export GOROOT=$HOME/golang/go; export GOPATH=$HOME/gopath; export PATH=$PATH:$GOROOT/bin; export PATH=$PATH:$GOPATH/bin'
+    - '(if [[ "$(go version)" == *"go version go$GOVER"* ]]; then echo "✓ Go binary installed!"; else echo "Go binary not installed"; exit -1; fi);'
+    - 'go version; go env; which go'
+    - 'echo -e "HOME=$HOME\nPWD: $(pwd)\nWHOAMI: $(whoami)\nHOSTNAME: $(hostname)" && echo "" && env|sort && echo "----------------- END"'
+  allow_failure: false
+
+prepare-gopath:
+  stage: prepare
+  script:
+    - '[ -d $REAL_BUILD_PATH ] || mkdir -p $REAL_BUILD_PATH'
+    - 'rsync -avrztopg --delete $CURRENT_BUILD_PATH/ $REAL_BUILD_PATH/'
+
+build-my-project:
+  stage: build
+  script:
+    - 'echo -e "PATH: $PATH\nGOPATH=$GOPATH\nGOROOT=$GOROOT\nCURRENT_BUILD_PATH=$CURRENT_BUILD_PATH\nREAL_BUILD_PATH=$REAL_BUILD_PATH"'
+    - 'cd $REAL_BUILD_PATH && pwd && ls -la --color'
+    - go get .
+    - go build -o bin/$BIN_NAME && gzip -kf bin/$BIN_NAME
+
+test-my-project:
+  stage: test
+  script:
+    - cd $REAL_BUILD_PATH
+    - go test -v ./... | sed ''/PASS/s//$(printf "\033[32mPASS\033[0m")/'' | sed ''/FAIL/s//$(printf "\033[31mFAIL\033[0m")/''
+    - echo "Coverage Testing Report:"
+    - scripts/gocoverage
+    #- go tool cover -func=bin/c.out
+    #- go tool cover -html=bin/c.out -o bin/coverage.html
+    #- aws s3 cp bin/coverage.html s3://suwei-tools/devops-coverage.html
+    #- cp bin/coverage.html /opt/sites/www/devops-coverage.html
+
+publish-to-s3:
+  stage: publish
+  only:
+    - /release\/v/
+    - master
+  script:
+    #- 'aws s3 cp $REAL_BUILD_PATH/bin/$BIN_NAME.gz s3://hedzr-tools/$BIN_NAME.gz'
+    - echo "pause deploy currently."
+
+publish-to-s3:devel:
+  stage: publish
+  only:
+    - devel
+  environment:
+    name: staging
+    url: https://puppet.hedzr.com/
+  script:
+    # - 'aws s3 cp $REAL_BUILD_PATH/bin/$BIN_NAME.gz s3://hedzr-tools/$BIN_NAME.gz'
+    - echo "pause deploy currently."
+
+
+
+

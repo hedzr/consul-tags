@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+
+set -e
+
+PROJ=consul-tags
+PKG_SRC=${PKG_SRC:-.}
+
+
+# Get rid of existing binaries
+rm -f bin/${PROJ}_*
+
+# Build 386 amd64 binaries
+OS_PLATFORM_ARG=(linux)
+OS_ARCH_ARG=(amd64)
+if [ "$1" == "--all" ]; then
+  OS_PLATFORM_ARG=(linux darwin windows freebsd openbsd)
+  OS_ARCH_ARG=(386 amd64)
+fi
+for OS in ${OS_PLATFORM_ARG[@]}; do
+  for ARCH in ${OS_ARCH_ARG[@]}; do
+    echo "Building binary for $OS/$ARCH..."
+    #    GOARCH=$ARCH GOOS=$OS CGO_ENABLED=0 go build -ldflags "-s -w" -o "bin/${PROJ}_$OS-$ARCH" $PKG_SRC && \
+    #      ls -l "bin/${PROJ}_$OS-$ARCH" && \
+    #      upx --brute "bin/${PROJ}_$OS-$ARCH" && \
+    #      ls -l "bin/${PROJ}_$OS-$ARCH"
+    GOARCH=$ARCH GOOS=$OS CGO_ENABLED=0 go build -ldflags "-s -w" -o "bin/${PROJ}_$OS-$ARCH" $PKG_SRC
+    if [ "$OS" == "linux" ]; then
+      ls -l "bin/${PROJ}_$OS-$ARCH" && \
+      # upx "bin/${PROJ}_$OS-$ARCH" && \
+      ls -l "bin/${PROJ}_$OS-$ARCH" && echo
+    fi
+  done
+done
+
+# Build arm binaries
+if [ "$1" == "--all" ]; then
+  OS_PLATFORM_ARG=(linux)
+  OS_ARCH_ARG=(arm arm64)
+  for OS in ${OS_PLATFORM_ARG[@]}; do
+    for ARCH in ${OS_ARCH_ARG[@]}; do
+      echo "Building binary for $OS/$ARCH..."
+      #      GOARCH=$ARCH GOOS=$OS CGO_ENABLED=0 go build -ldflags "-s -w" -o "bin/${PROJ}_$OS-$ARCH" $PKG_SRC && \
+      #      ls -l "bin/${PROJ}_$OS-$ARCH" && \
+      #      upx --brute "bin/${PROJ}_$OS-$ARCH" && \
+      #      ls -l "bin/${PROJ}_$OS-$ARCH"
+      GOARCH=$ARCH GOOS=$OS CGO_ENABLED=0 go build -ldflags "-s -w" -o "bin/${PROJ}_$OS-$ARCH" $PKG_SRC && \
+      ls -l "bin/${PROJ}_$OS-$ARCH" && echo
+    done
+  done
+fi
+
+echo "Building default binary"
+ARCH=amd64
+OS=darwin
+GOARCH=$ARCH GOOS=$OS CGO_ENABLED=0 go build -ldflags "-s -w" -o "bin/${PROJ}" $PKG_SRC
+
+chmod +x bin/${PROJ}*
+
+echo "Publish linux-amd64 copy to s3 [paused]..."
+[ -f /tmp/$PROJ ] && rm -f /tmp/$PROJ
+[ -f /tmp/$PROJ.gz ] && rm -f /tmp/$PROJ.gz
+cp bin/${PROJ}_linux-amd64 /tmp/$PROJ
+gzip /tmp/$PROJ && ls -la /tmp/${PROJ}* && \
+: #aws s3 cp /tmp/$PROJ.gz s3://hedzr-tools/devops.gz

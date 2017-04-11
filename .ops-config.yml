@@ -1,0 +1,10 @@
+---
+gingle-crouton: false
+
+gitlab-cli:
+  token: wZyxGqDQMu1dXp5qfpcG
+  repos:
+    myrepo1:
+      url: https://git.hedzr.com/clients/ducky
+      token: wZyxGqDQMu1dXp5qfpcG
+

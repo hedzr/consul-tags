@@ -1,0 +1,106 @@
+#!/usr/bin/env bash
+
+if [[ $OSTYPE == *darwin* ]]; then
+    function realpathx () { [[ "$1" == "/*" ]] && echo "$1" || echo "$PWD/${1#./}" ; }
+    function mylocalip () { ifconfig|grep inet[^6]|grep -Ev '((127.0.0.1)|(192.168.2)|(192.168.[0-9]{2,})|(169.254))'|grep -Eo 'inet [^ ]+'|grep -Eo '\d+.\d+.\d+.\d+'; }
+else
+    function realpathx () { readlink -f $*; }
+    function mylocalip () { ip addr show dev $MAIN_DEV|grep inet[^6]|grep -Eoi 'inet [^ /]+'|grep -Poi '\d+[^ /]+'; }
+fi
+# SCRIPT=$(realpathx $0) && CD=$(dirname $SCRIPT) # && echo "'$SCRIPT' in '$CD', \$0='$0','$1'. IP=$(mylocalip)"
+SCRIPT=$(realpathx $0) && CD=$(dirname $SCRIPT) && echo "'$SCRIPT' in '$CD', \$0='$0','$1'. IP=$(mylocalip)"
+
+
+PROJ_DIR=$(dirname $(dirname $CD))
+
+[ -d /tmp/consul ] && rm -rf /tmp/consul || mkdir /tmp/consul
+
+# consul agent -data-dir /tmp/consul -server -bootstrap &
+
+echo "USING PROJ_DIR = $PROJ_DIR"
+echo "USING CONSUL CONFIG DIR: $PROJ_DIR/ci/consul.d"
+echo ""
+consul agent -config-dir $PROJ_DIR/ci/consul.d -data-dir /tmp/consul -server
+
+
+cat >/dev/null<<EEE
+
+kill -9 $(lsof -Pni :8500|grep LISTEN|awk '{print $2}')
+
+curl -sS http://localhost:8500/v1/catalog/service/test-redis?pretty | jq -r ".[] | select(.ServiceAddress == \"suwei02\")" > sqs-2.json
+
+curl -sS http://localhost:8500/v1/catalog/service/test-redis?pretty | jq -r ".[].ServiceAddress"
+
+
+
+http --json PUT http://localhost:8500/v1/agent/service/register <<EOF
+{
+  "ID": "consulapi-1",
+  "Name": "consulapi",
+  "Tags": [
+    "primary",
+    "v1"
+  ],
+  "Address": "127.0.0.1",
+  "Port": 8500,
+  "EnableTagOverride": false
+}
+EOF
+
+http --json PUT http://localhost:8500/v1/agent/service/register <<EOF
+{
+  "ID": "8004531e-dad7-dd11-af33-54a0507bc8b9",
+  "Node": "SW-LOCAL-CONSUL",
+  "Address": "192.168.0.138",
+  "TaggedAddresses": {
+    "lan": "192.168.0.138",
+    "wan": "192.168.0.138"
+  },
+  "NodeMeta": {},
+  "ServiceID": "test-sqs-ram-2",
+  "ServiceName": "test-sqs",
+  "ServiceTags": [
+    "test-sqs",
+    "well-known",
+    "id=sqs-suwei02",
+    "userid=1",
+    "qname=q*",
+    "version=3.6.5",
+    "arn=aliyun:rds:SUWEI-LOCAL-1:1:sqs:q*",
+    "hostname=suwei02",
+    "username=suwei",
+    "password=PAmtE0hg",
+    "type=ram",
+    "role=master",
+    "NOTE=SQS服务包含多组IP，请使用恰当的访问负载均衡节点的策略"
+  ],
+  "ServiceAddress": "suwei02",
+  "ServicePort": 5672,
+  "ServiceEnableTagOverride": false,
+  "CreateIndex": 46810,
+  "ModifyIndex": 46810
+}
+EOF
+EEE
+
+cat >/dev/null<<EOF
+{
+  "ID": "redis-1",
+  "Name": "redis",
+  "Tags": [
+    "primary",
+    "v1"
+  ],
+  "Address": "127.0.0.1",
+  "Port": 8500,
+  "EnableTagOverride": false,
+  "Check": {
+    "DeregisterCriticalServiceAfter": "90m",
+    "Script": "/usr/local/bin/check_redis.py",
+    "HTTP": "http://localhost:5000/health",
+    "Interval": "10s",
+    "TTL": "15s"
+  }
+}
+
+EOF

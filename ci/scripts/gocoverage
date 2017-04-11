@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+function gocoverage() {
+    local ix=bin/c/index.html
+    [ -d bin/c ] || mkdir -p bin/c
+    echo "<h1>Coverage for XXX</h1><ul>" >$ix
+    for pkg in $(go list ./... | grep -v /vendor/); do
+        [ -d bin/c/$pkg ] || mkdir -p bin/c/$pkg
+        go test -v $pkg -coverprofile=bin/c/$pkg/c.out
+        if [ -f bin/c/$pkg/c.out ]; then
+            go tool cover -html=bin/c/$pkg/c.out -o bin/c/$pkg/c.html
+            echo "<li><a href=\"./$pkg/c.html\">$pkg</a></li>" >>$ix
+        fi
+    done
+    echo "</ul>" >>$ix
+    [ $OSTYPE == *darwin* ] && open $ix
+}
+
+gocoverage
+:
