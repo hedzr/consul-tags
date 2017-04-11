@@ -70,7 +70,7 @@ fi
 
 
 chmod +x bin/${PROJ}*
-cd bin; tar czf ../${PROG}.tgz ${PROG}*; cd ..
+cd bin; tar czf ../${PROJ}.tgz ${PROJ}*; cd ..
 
 
 
