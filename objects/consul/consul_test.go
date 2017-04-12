@@ -170,9 +170,6 @@ func someTests(registrar *Registrar) error {
 	return err
 }
 
-
-
-
 func testConsulapi(registrar *Registrar) {
 	log.Debugf("Querying %s services...", SERVICE_CONSUL_API)
 	theServices, err := QueryService(SERVICE_CONSUL_API, registrar.FirstClient.Catalog())
