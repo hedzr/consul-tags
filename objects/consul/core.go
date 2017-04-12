@@ -41,4 +41,3 @@ type Service interface {
 	GetId() string
 	GetTags() []string
 }
-

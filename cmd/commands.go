@@ -2,8 +2,8 @@ package cmd
 
 import (
 	"fmt"
-	"gopkg.in/urfave/cli.v2"
 	"github.com/hedzr/consul-tags/objects/consul"
+	"gopkg.in/urfave/cli.v2"
 )
 
 var Commands = []*cli.Command{

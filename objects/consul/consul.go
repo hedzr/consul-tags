@@ -12,10 +12,10 @@ import (
 )
 
 const (
-	DEFAULT_CONSUL_HOST        = "consul.ops.local"
-	DEFAULT_CONSUL_LOCALHOST   = "localhost"
-	DEFAULT_CONSUL_PORT        = 8500
-	DEFAULT_CONSUL_SCHEME      = "http"
+	DEFAULT_CONSUL_HOST      = "consul.ops.local"
+	DEFAULT_CONSUL_LOCALHOST = "localhost"
+	DEFAULT_CONSUL_PORT      = 8500
+	DEFAULT_CONSUL_SCHEME    = "http"
 )
 
 type valueEnc struct {
