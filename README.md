@@ -1,5 +1,6 @@
 # Consul Service Tags Modifier
 
+[![GitHub version](https://badge.fury.io/gh/hedzr%2Fconsul-tags.svg)](https://badge.fury.io/gh/hedzr%2Fconsul-tags)
 [![Build Status](https://travis-ci.org/hedzr/consul-tags.svg?branch=master)](https://travis-ci.org/hedzr/consul-tags)
 
 `consul-tags` can add, remove tag(s) of a consul service (one or all its instances).
@@ -15,7 +16,17 @@ Download binary from [Release](../../releases/latest) page.
 
 ### Docker Hub
 
-WAIT A MINUTE.
+```bash
+docker pull hedzr/consul-tags
+docker run -it --rm hedzr/consul-tags --addr 192.168.0.71:8500 ms --name test-redis tags ls
+```
+
+Replace `192.168.0.71` with your consul center ip or name.
+
+DON'T use `127.0.0.1` with dockerize release.
+
+> latest: master branch and based on golang:alpine
+
 
 ### Go Build
 
@@ -64,6 +75,8 @@ CONSUL_ADDR=127.0.0.1:8500 consul-tags ms --name=consul tags ls
 # or
 export CONSUL_HOST=ns2.company.domain:8500
 consul-tags --help
+# or
+consul-tags --addr 127.0.0.1:8500 ms --name=consul tags ls 
 ```
 
 ### COMMANDS:
@@ -109,10 +122,11 @@ cp bin/consul-tags /usr/local/bin/
 source /etc/bash_completion.d/consul-tags
 ```
 
-see also [Shell Completion](https://github.com/urfave/cli/tree/v2#shell-completion).
+See also [Shell Completion](https://github.com/urfave/cli/tree/v2#shell-completion).
 
-zsh: TODO
-Mac: TODO
+zsh: DOC TODO
+
+Mac: DOC TODO
 
 
 ## Thanks
