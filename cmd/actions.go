@@ -2,9 +2,9 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/hedzr/consul-tags/objects"
 	"gopkg.in/urfave/cli.v2"
 	"gopkg.in/yaml.v2"
-	"github.com/hedzr/consul-tags/objects"
 	"os"
 	"path"
 )

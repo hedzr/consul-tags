@@ -5,7 +5,6 @@ import (
 	log "github.com/cihub/seelog"
 	"github.com/hashicorp/consul/api"
 	"gopkg.in/urfave/cli.v2"
-	"github.com/hedzr/consul-tags/util"
 	"strconv"
 	"strings"
 )
@@ -115,7 +114,7 @@ func modifyServiceTagsByName(registrar *Registrar, c *cli.Context, name string) 
 			client := getClient(as.Address, as.Port, c)
 			agentService := cn.Services[s.ServiceID]
 
-			tags := modifyTags(s.ServiceTags, c.StringSlice("add"), c.StringSlice("rm"), c.String("delim"), c)
+			tags := ModifyTags(s.ServiceTags, c.StringSlice("add"), c.StringSlice("rm"), c.String("delim"), c.Bool("clear"), c.Bool("plain"), c.Bool("string"))
 
 			//for _, t = range tags {
 			//log.Debugf("    *** Tags: %v", tags)
@@ -163,7 +162,7 @@ func modifyServiceTagsByID(registrar *Registrar, c *cli.Context, id string) {
 		client := getClient(as.Address, as.Port, c)
 		agentService := cn.Services[id]
 
-		tags := modifyTags(s.ServiceTags, c.StringSlice("add"), c.StringSlice("rm"), c.String("delim"), c)
+		tags := ModifyTags(s.ServiceTags, c.StringSlice("add"), c.StringSlice("rm"), c.String("delim"), c.Bool("clear"), c.Bool("plain"), c.Bool("string"))
 
 		//for _, t = range tags {
 		//	log.Debugf("    *** Tags: %v", tags)
@@ -189,81 +188,6 @@ func modifyServiceTagsByID(registrar *Registrar, c *cli.Context, id string) {
 		//	s.ServiceTags, s.NodeMeta, s.Node, s.Address)
 		fmt.Printf("%s: %s\n", s.ServiceID, strings.Join(sNew.Tags, ","))
 	}
-}
-
-func modifyTags(tags, addTags, removeTags []string, delim string, c *cli.Context) []string {
-	if c.Bool("clear") {
-		tags = make([]string, 0)
-	}
-
-	if !c.Bool("plain") {
-		log.Debug("    --- in ext mode")
-		list := make([]string, 0)
-		for _, t := range removeTags {
-			if c.Bool("string") {
-				list = append(list, t)
-			} else {
-				for _, t1 := range strings.Split(t, ",") {
-					list = append(list, t1)
-				}
-			}
-		}
-		for _, t := range list {
-			log.Debugf("    --- slice: erasing %s", t)
-			for {
-				erased := false
-				for i, v := range tags {
-					va := strings.Split(v, delim)
-					ta := strings.Split(t, delim)
-					if len(ta) > 0 && strings.EqualFold(va[0], ta[0]) {
-						tags = util.SliceEraseByIndex(tags, i)
-						log.Debugf("      - slice: erased '%s%s%s'", va[0], delim, va[1])
-						erased = true
-						break
-					}
-				}
-				if !erased {
-					break
-				}
-			}
-		}
-		list = make([]string, 0)
-		for _, t := range addTags {
-			if c.Bool("string") {
-				list = append(list, t)
-			} else {
-				for _, t1 := range strings.Split(t, ",") {
-					list = append(list, t1)
-				}
-			}
-		}
-		for _, t := range list {
-			log.Debugf("    --- slice: appending %s", t)
-			matched := false
-			for i, v := range tags {
-				va := strings.Split(v, delim)
-				ta := strings.Split(t, delim)
-				if len(va) > 0 && strings.EqualFold(va[0], ta[0]) {
-					tags[i] = t
-					log.Debugf("      - slice: appended '%s%s%s'", va[0], delim, va[1])
-					matched = true
-				}
-			}
-			if !matched {
-				tags = append(tags, t)
-			}
-		}
-
-	} else {
-		for _, t := range removeTags {
-			tags = util.SliceErase(tags, t)
-		}
-		for _, t := range addTags {
-			tags = append(tags, t)
-		}
-	}
-
-	return tags
 }
 
 func toggleServiceTags(registrar *Registrar, c *cli.Context) {
@@ -321,9 +245,9 @@ func toggleServiceTagsByName(registrar *Registrar, c *cli.Context, name string) 
 			}
 			tags := s.ServiceTags
 			if matched {
-				tags = modifyTags(tags, masterTag, slaveTag, c.String("delim"), c)
+				tags = ModifyTags(tags, masterTag, slaveTag, c.String("delim"), c.Bool("clear"), c.Bool("plain"), c.Bool("string"))
 			} else {
-				tags = modifyTags(tags, slaveTag, masterTag, c.String("delim"), c)
+				tags = ModifyTags(tags, slaveTag, masterTag, c.String("delim"), c.Bool("clear"), c.Bool("plain"), c.Bool("string"))
 			}
 			//}
 
