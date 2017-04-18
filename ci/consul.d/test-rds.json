@@ -10,7 +10,7 @@
         "timeout": "1s"
       }
     ],
-    "enableTagOverride": true,
+    "enableTagOverride": false,
     "id": "test-rds-sw2msq00",
     "name": "test-rds",
     "port": 3306,

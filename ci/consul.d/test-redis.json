@@ -10,7 +10,7 @@
         "timeout": "1s"
       }
     ],
-    "enableTagOverride": true,
+    "enableTagOverride": false,
     "id": "test-redis-6379",
     "name": "test-redis",
     "port": 6379,
@@ -37,7 +37,7 @@
         "timeout": "1s"
       }
     ],
-    "enableTagOverride": true,
+    "enableTagOverride": false,
     "id": "test-redis-6380",
     "name": "test-redis",
     "port": 6380,
@@ -64,7 +64,7 @@
         "timeout": "1s"
       }
     ],
-    "enableTagOverride": true,
+    "enableTagOverride": false,
     "id": "test-redis-6381",
     "name": "test-redis",
     "port": 6381,
