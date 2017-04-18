@@ -18,7 +18,7 @@ set -e
 if [ -f $PROJ_DIR/doc.go ]; then
   PROJ=$(cat doc.go|grep -o 'package .*'|awk '{print $2}')
 else
-  PROJ=$(dirname $PROJ_DIR)
+  PROJ=$(basename $PROJ_DIR)
 fi
 PKG_SRC=${PKG_SRC:-.}
 
