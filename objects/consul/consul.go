@@ -209,6 +209,18 @@ var Commands = []*cli.Command{
 			//	},
 			//},
 			{
+				Name:   "ls",
+				Usage:  "list service definitions by its name or id",
+				Action: TagsList,
+				Description: `Normal Usages:
+
+    $ devops consul ms --name serive-name ls
+      list the tags of service nodes by name
+    $ devops consul ms --id serive-id ls
+      list the tags of service nodes by id
+`,
+			},
+			{
 				Name:      "tags",
 				Usage:     "maintains a service's tags",
 				UsageText: "doo - does the dooing",

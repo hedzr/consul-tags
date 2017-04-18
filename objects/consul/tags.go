@@ -47,6 +47,8 @@ func listServiceTags(registrar *Registrar, c *cli.Context) {
 		listServiceTagsByID(registrar, c, id)
 		return
 	}
+
+	fmt.Println("--name ServiceName or --id ServiceID should be specified.")
 }
 
 func listServiceTagsByName(registrar *Registrar, c *cli.Context, serviceName string) {
