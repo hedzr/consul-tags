@@ -39,7 +39,7 @@ func main() {
 	app := &cli.App{
 		Name:    "consul-tags",
 		Usage:   "The DevOps Toolset!",
-		Version: "0.3.1",
+		Version: "0.3.2",
 		Authors: []*cli.Author{
 			{
 				Name: "Hedzr", Email: "hedzrz@gmail.com",
