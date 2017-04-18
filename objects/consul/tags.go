@@ -59,7 +59,14 @@ func listServiceTagsByName(registrar *Registrar, c *cli.Context, name string) {
 			//log.Debugf("    #%d. id='%s'[%s:%d], tags=%v, meta=%v, Node: %s,%s\n",
 			//	i, s.ServiceID, s.ServiceAddress, s.ServicePort,
 			//	s.ServiceTags, s.NodeMeta, s.Node, s.Address)
-			fmt.Printf("%s: %s\n", s.ServiceID, strings.Join(s.ServiceTags, ","))
+			fmt.Printf("%s:\n", s.ServiceID)
+			fmt.Printf("\tname: %s\n", s.ServiceName)
+			fmt.Printf("\tnode: %s\n", s.Node)
+			fmt.Printf("\taddr: %s, tagged: %v\n", s.Address, s.TaggedAddresses)
+			fmt.Printf("\tendp: %s:%d\n", s.ServiceAddress, s.ServicePort)
+			fmt.Printf("\ttags: %v\n", strings.Join(s.ServiceTags, ","))
+			fmt.Printf("\tmeta: %v\n", s.NodeMeta)
+			fmt.Printf("\tenableTagOveerride: %v\n", s.ServiceEnableTagOverride)
 		}
 	}
 }
@@ -142,6 +149,29 @@ func modifyServiceTagsByName(registrar *Registrar, c *cli.Context, name string) 
 			//	catalogService.ServiceTags, catalogService.NodeMeta, catalogService.Node, catalogService.Address)
 			fmt.Printf("%s: %s\n", catalogService.ServiceID, strings.Join(sNew.Tags, ","))
 			fmt.Printf("\tmeta: %v\n", catalogService.NodeMeta)
+
+			catalogService.NodeMeta["id"] = catalogService.ServiceID
+			catalogService.NodeMeta["addr"] = catalogService.Address
+			catalogService.NodeMeta["s-addr"] = catalogService.ServiceAddress
+			catalogService.NodeMeta["s-port"] = strconv.Itoa(catalogService.ServicePort)
+			writeMeta, err := registrar.FirstClient.Catalog().Register(&api.CatalogRegistration{
+				ID:   catalogService.ID,
+				Node: catalogService.Node,
+				Address         : catalogService.Address,
+				TaggedAddresses : catalogService.TaggedAddresses,
+				NodeMeta: catalogService.NodeMeta,
+				//Datacenter      : registrar.FirstClient.Catalog().Datacenters()[0],
+			}, nil)
+			if err != nil {
+				log.Critical(fmt.Errorf("Error: %v", err))
+			} else {
+				fmt.Printf("\twriteMeta: %v\n", writeMeta)
+			}
+		}
+
+		catalogServices, err = QueryService(name, registrar.FirstClient.Catalog())
+		for _, catalogService := range catalogServices {
+			fmt.Printf("    %s: meta: %v\n", catalogService.ServiceID, catalogService.NodeMeta)
 		}
 	}
 }
