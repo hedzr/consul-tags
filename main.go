@@ -30,7 +30,7 @@ const (
 func init() {
 
 	basicLogConfig := `
-<seelog type="asynctimer" asyncinterval="5000000" minlevel="debug" maxlevel="critical">
+<seelog type="asynctimer" asyncinterval="5000000" minlevel="info" maxlevel="critical">
     <outputs formatid="main">
         <!-- filter formatid="main-console" levels="debug,info,warn,error,critical">
             <console />
