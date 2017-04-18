@@ -10,7 +10,7 @@
         "timeout": "1s"
       }
     ],
-    "enableTagOverride": true,
+    "enableTagOverride": false,
     "id": "test-sqs-ram-1",
     "name": "test-sqs",
     "port": 5672,
@@ -40,7 +40,7 @@
         "timeout": "1s"
       }
     ],
-    "enableTagOverride": true,
+    "enableTagOverride": false,
     "id": "test-sqs-disc-1",
     "name": "test-sqs",
     "port": 5672,

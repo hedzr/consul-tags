@@ -1,8 +1,25 @@
 #!/usr/bin/env bash
 
+if [[ $OSTYPE == *darwin* ]]; then
+    function realpathx () { [[ "$1" == "/*" ]] && echo "$1" || echo "$PWD/${1#./}" ; }
+    function mylocalip () { ifconfig|grep inet[^6]|grep -Ev '((127.0.0.1)|(192.168.2)|(192.168.[0-9]{2,})|(169.254))'|grep -Eo 'inet [^ ]+'|grep -Eo '\d+.\d+.\d+.\d+'; }
+else
+    function realpathx () { readlink -f $*; }
+    function mylocalip () { ip addr show dev $MAIN_DEV|grep inet[^6]|grep -Eoi 'inet [^ /]+'|grep -Poi '\d+[^ /]+'; }
+fi
+# SCRIPT=$(realpathx $0) && CD=$(dirname $SCRIPT) # && echo "'$SCRIPT' in '$CD', \$0='$0','$1'. IP=$(mylocalip)"
+SCRIPT=$(realpathx $0) && CD=$(dirname $SCRIPT) && echo "'$SCRIPT' in '$CD', \$0='$0','$1'. IP=$(mylocalip)"
+
+
+PROJ_DIR=$(dirname $(dirname $CD))
+
 set -e
 
-PROJ=consul-tags
+if [ -f $PROJ_DIR/doc.go ]; then
+  PROJ=$(cat doc.go|grep -o 'package .*'|awk '{print $2}')
+else
+  PROJ=$(dirname $PROJ_DIR)
+fi
 PKG_SRC=${PKG_SRC:-.}
 
 if [ "$1" == "--ci" ]; then
@@ -69,6 +86,7 @@ if [ "$1" != "--ci" ]; then
   ARCH=amd64
   OS=darwin
   GOARCH=$ARCH GOOS=$OS CGO_ENABLED=0 go build -ldflags "-s -w" -o "bin/${PROJ}" $PKG_SRC
+  ls -l "bin/${PROJ}" && echo
 fi
 
 
@@ -82,14 +100,14 @@ if [ "$1" != "--ci" ]; then
   echo "Publish linux-amd64 copy to s3 [paused]..."
   [ -f /tmp/$PROJ ] && rm -f /tmp/$PROJ
   [ -f /tmp/$PROJ.gz ] && rm -f /tmp/$PROJ.gz
-  cp bin/${PROJ}_linux-amd64 /tmp/$PROJ
-  gzip /tmp/$PROJ && ls -la /tmp/${PROJ}* && \
+  cp bin/${PROJ}_linux-amd64.gz /tmp/$PROJ && \
   : #aws s3 cp /tmp/$PROJ.gz s3://hedzr-tools/devops.gz
+else
+  echo "project.dir -----------"
+  ls -la
 fi
 
 
-echo "project.dir -----------"
-ls -la
 echo "bin.dir -----------"
 ls -la bin/
 

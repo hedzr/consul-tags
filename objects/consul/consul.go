@@ -209,6 +209,18 @@ var Commands = []*cli.Command{
 			//	},
 			//},
 			{
+				Name:   "ls",
+				Usage:  "list service definitions by its name or id",
+				Action: TagsList,
+				Description: `Normal Usages:
+
+    $ devops consul ms --name serive-name ls
+      list the tags of service nodes by name
+    $ devops consul ms --id serive-id ls
+      list the tags of service nodes by id
+`,
+			},
+			{
 				Name:      "tags",
 				Usage:     "maintains a service's tags",
 				UsageText: "doo - does the dooing",
@@ -281,6 +293,16 @@ var Commands = []*cli.Command{
 						Aliases: []string{"s"},
 						Usage:   "Default a tag string will be split by comma(,), and treated as a string list; but string mode disable this.",
 					},
+					&cli.BoolFlag{
+						Name:    "meta",
+						Aliases: []string{"m"},
+						Usage:   "In 'Meta Mode', service 'NodeMeta' field will be updated instead of 'Tags'. (--plain assumed false)",
+					},
+					&cli.BoolFlag{
+						Name:    "both",
+						Aliases: []string{"2"},
+						Usage:   "In 'Both Mode', both of 'NodeMeta' and 'Tags' field will be updated.",
+					},
 				},
 				Subcommands: []*cli.Command{
 					{
@@ -333,6 +355,20 @@ var Commands = []*cli.Command{
 		},
 		Action: func(c *cli.Context) error {
 			fmt.Println("Microservice opeations: ", c.Args().First())
+			return nil
+		},
+	},
+
+	{
+		Name:    "logger",
+		Aliases: []string{"l"},
+		Usage:   "logger helpers",
+		// SubFlags: []cli.Flag { {},{},...   },
+		//Flags:       consul.Flags,
+		Subcommands: LoggerCommands,
+		//Before:      consul.Before,
+		Action: func(c *cli.Context) error {
+			fmt.Println("logger task: ", c.Args().First())
 			return nil
 		},
 	},

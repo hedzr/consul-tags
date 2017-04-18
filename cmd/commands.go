@@ -20,4 +20,17 @@ var Commands = []*cli.Command{
 			return nil
 		},
 	},
+	{
+		Name:    "logger",
+		Aliases: []string{"l"},
+		Usage:   "logger helpers",
+		// SubFlags: []cli.Flag { {},{},...   },
+		//Flags:       consul.Flags,
+		Subcommands: consul.LoggerCommands,
+		//Before:      consul.Before,
+		Action: func(c *cli.Context) error {
+			fmt.Println("logger task: ", c.Args().First())
+			return nil
+		},
+	},
 }

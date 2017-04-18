@@ -47,21 +47,38 @@ func listServiceTags(registrar *Registrar, c *cli.Context) {
 		listServiceTagsByID(registrar, c, id)
 		return
 	}
+
+	fmt.Println("--name ServiceName or --id ServiceID should be specified.")
 }
 
-func listServiceTagsByName(registrar *Registrar, c *cli.Context, name string) {
-	log.Debugf("List the tags of service '%s' at '%s'...", name, c.String("addr"))
-	theServices, err := QueryService(name, registrar.FirstClient.Catalog())
-	if err != nil {
-		log.Critical(fmt.Errorf("Error: %v", err))
-	} else {
-		for _, s := range theServices {
-			//log.Debugf("    #%d. id='%s'[%s:%d], tags=%v, meta=%v, Node: %s,%s\n",
-			//	i, s.ServiceID, s.ServiceAddress, s.ServicePort,
-			//	s.ServiceTags, s.NodeMeta, s.Node, s.Address)
-			fmt.Printf("%s: %s\n", s.ServiceID, strings.Join(s.ServiceTags, ","))
+func listServiceTagsByName(registrar *Registrar, c *cli.Context, serviceName string) {
+	log.Debugf("List the tags of service '%s' at '%s'...", serviceName, c.String("addr"))
+
+	WaitForResult(func() (bool, error) {
+		catalogServices, err := QueryService(serviceName, registrar.FirstClient.Catalog())
+		if err != nil {
+			return false, err
 		}
-	}
+
+		if _, ok := catalogServices[0].TaggedAddresses["wan"]; !ok {
+			return false, fmt.Errorf("Bad: %v\n", catalogServices[0])
+		}
+
+		for _, catalogService := range catalogServices {
+			fmt.Printf("%s:\n", catalogService.ServiceID)
+			fmt.Printf("\tname: %s\n", catalogService.ServiceName)
+			fmt.Printf("\tnode: %s\n", catalogService.Node)
+			fmt.Printf("\taddr: %s, tagged: %v\n", catalogService.Address, catalogService.TaggedAddresses)
+			fmt.Printf("\tendp: %s:%d\n", catalogService.ServiceAddress, catalogService.ServicePort)
+			fmt.Printf("\ttags: %v\n", strings.Join(catalogService.ServiceTags, ","))
+			fmt.Printf("\tmeta: %v\n", catalogService.NodeMeta)
+			fmt.Printf("\tenableTagOveerride: %v\n", catalogService.ServiceEnableTagOverride)
+		}
+
+		return true, nil
+	}, func(err error) {
+		log.Critical(fmt.Errorf("err: %v", err))
+	})
 }
 
 func listServiceTagsByID(registrar *Registrar, c *cli.Context, id string) {
@@ -97,48 +114,106 @@ func modifyServiceTags(registrar *Registrar, c *cli.Context) {
 	}
 }
 
-func modifyServiceTagsByName(registrar *Registrar, c *cli.Context, name string) {
-	log.Debugf("Modifying the tags of service '%s'...", name)
-	theServices, err := QueryService(name, registrar.FirstClient.Catalog())
+func modifyServiceTagsByName(registrar *Registrar, c *cli.Context, serviceName string) {
+	log.Debugf("Modifying the tags of service '%s'...", serviceName)
+	catalogServices, err := QueryService(serviceName, registrar.FirstClient.Catalog())
 	if err != nil {
 		log.Critical(fmt.Errorf("Error: %v", err))
 	} else {
+		bothMode := c.Bool("both")
+		metaMode := c.Bool("meta")
+
 		//registrarId, registrarAddr, registrarPort := consulapi[0].ServiceID, consulapi[0].Address, consulapi[0].ServicePort
-		//fmt.Printf("    Using '%s', %s:%d\n", userServices[0].ServiceID, userServices[0].Address, userServices[0].ServicePort)
-		for _, s := range theServices {
-			// 服务 s 所在的 Node
-			cn := NodeToAgent(registrar, s.Node)
+		//fmt.Printf("    Using '%catalogService', %catalogService:%d\n", userServices[0].ServiceID, userServices[0].Address, userServices[0].ServicePort)
+		for _, catalogService := range catalogServices {
+			// 服务 catalogService 所在的 Node
+			cn := NodeToAgent(registrar, catalogService.Node)
 			// 节点 cn 的服务表中名为 "consulapi" 的服务
 			as := CatalogNodeGetService(cn, SERVICE_CONSUL_API)
-			// 从 consulapi 指示Agent（也即服务 s 所对应的 Agent），建立一个临时的 Client
+			// 从 consulapi 指示Agent（也即服务 catalogService 所对应的 Agent），建立一个临时的 Client
 			client := getClient(as.Address, as.Port, c)
-			agentService := cn.Services[s.ServiceID]
+			agentService := cn.Services[catalogService.ServiceID]
 
-			tags := ModifyTags(s.ServiceTags, c.StringSlice("add"), c.StringSlice("rm"), c.String("delim"), c.Bool("clear"), c.Bool("plain"), c.Bool("string"))
+			if bothMode || metaMode == false {
 
-			//for _, t = range tags {
-			//log.Debugf("    *** Tags: %v", tags)
-			//}
+				log.Debugf("    %s: tags: %v", catalogService.ServiceID, catalogService.ServiceTags)
 
-			client.Agent().ServiceRegister(&api.AgentServiceRegistration{
-				ID:                s.ServiceID,
-				Name:              s.ServiceName,
-				Tags:              tags,
-				Port:              s.ServicePort,
-				Address:           agentService.Address,
-				EnableTagOverride: s.ServiceEnableTagOverride,
+				tags := ModifyTags(catalogService.ServiceTags, c.StringSlice("add"),
+					c.StringSlice("rm"), c.String("delim"),
+					c.Bool("clear"), c.Bool("plain"),
+					c.Bool("string"))
+
+				if err = client.Agent().ServiceRegister(&api.AgentServiceRegistration{
+					ID:                catalogService.ServiceID,
+					Name:              catalogService.ServiceName,
+					Tags:              tags,
+					Port:              catalogService.ServicePort,
+					Address:           agentService.Address,
+					EnableTagOverride: catalogService.ServiceEnableTagOverride,
+				}); err != nil {
+					log.Critical(fmt.Errorf("Error: %v", err))
+				}
+
+				//重新载入s的等价物，才能得到新的tags集合，catalogService.ServiceTags并不会自动更新为新集合
+				sNew, _ := QueryServiceByID(catalogService.ServiceID, client)
+
+				//fmt.Printf("    #%d. id='%catalogService'[%catalogService:%d], tags=%v, meta=%v, Node: %catalogService,%catalogService:%d\n",
+				//	i, catalogService.ServiceID, catalogService.ServiceAddress, catalogService.ServicePort,
+				//	sNew.Tags, catalogService.NodeMeta, catalogService.Node, catalogService.Address, as.Port)
+				//log.Debugf("    #%d. id='%catalogService'[%catalogService:%d], tags=%v, meta=%v, Node: %catalogService,%catalogService\n",
+				//	i, catalogService.ServiceID, catalogService.ServiceAddress, catalogService.ServicePort,
+				//	catalogService.ServiceTags, catalogService.NodeMeta, catalogService.Node, catalogService.Address)
+				fmt.Printf("%s: %s\n", catalogService.ServiceID, strings.Join(sNew.Tags, ","))
+				fmt.Printf("\tmeta: %v\n", catalogService.NodeMeta)
+			}
+
+			if bothMode || metaMode {
+
+				log.Debugf("    %s: meta: %v", catalogService.ServiceID, catalogService.NodeMeta)
+
+				ModifyNodeMeta(catalogService.NodeMeta, c.StringSlice("add"),
+					c.StringSlice("rm"), c.String("delim"),
+					c.Bool("clear"), false, //c.Bool("plain"),
+					c.Bool("string"))
+
+				log.Debugf("    %s: meta: %v, modified.", catalogService.ServiceID, catalogService.NodeMeta)
+
+				//catalogService.NodeMeta["id"] = catalogService.ServiceID
+				//catalogService.NodeMeta["addr"] = catalogService.Address
+				//catalogService.NodeMeta["s-addr"] = catalogService.ServiceAddress
+				//catalogService.NodeMeta["s-port"] = strconv.Itoa(catalogService.ServicePort)
+
+				writeMeta, err := client.Catalog().Register(&api.CatalogRegistration{
+					ID:              catalogService.ID,
+					Node:            catalogService.Node,
+					Address:         catalogService.Address,
+					TaggedAddresses: catalogService.TaggedAddresses,
+					NodeMeta:        catalogService.NodeMeta,
+					Service:         agentService,
+					//Datacenter      : registrar.FirstClient.Catalog().Datacenters()[0],
+				}, nil)
+				if err != nil {
+					log.Critical(fmt.Errorf("Error: %v", err))
+				} else {
+					log.Debugf("\twriteMeta: %v", writeMeta)
+				}
+			}
+		}
+
+		if bothMode || metaMode {
+			fmt.Printf("**** Results of service '%s':\n", serviceName)
+			WaitForResult(func() (bool, error) {
+				catalogServicesNew, err := QueryService(serviceName, registrar.FirstClient.Catalog())
+				if err != nil {
+					return false, err
+				}
+				for _, catalogService := range catalogServicesNew {
+					fmt.Printf("    %s: meta: %v.\n", catalogService.ServiceID, catalogService.NodeMeta)
+				}
+				return true, err
+			}, func(err error) {
+				log.Critical(fmt.Errorf("err: %v", err))
 			})
-
-			//重新载入s的等价物，才能得到新的tags集合，s.ServiceTags并不会自动更新为新集合
-			sNew, _ := QueryServiceByID(s.ServiceID, client)
-
-			//fmt.Printf("    #%d. id='%s'[%s:%d], tags=%v, meta=%v, Node: %s,%s:%d\n",
-			//	i, s.ServiceID, s.ServiceAddress, s.ServicePort,
-			//	sNew.Tags, s.NodeMeta, s.Node, s.Address, as.Port)
-			//log.Debugf("    #%d. id='%s'[%s:%d], tags=%v, meta=%v, Node: %s,%s\n",
-			//	i, s.ServiceID, s.ServiceAddress, s.ServicePort,
-			//	s.ServiceTags, s.NodeMeta, s.Node, s.Address)
-			fmt.Printf("%s: %s\n", s.ServiceID, strings.Join(sNew.Tags, ","))
 		}
 	}
 }

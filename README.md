@@ -2,6 +2,11 @@
 
 [![GitHub version](https://badge.fury.io/gh/hedzr%2Fconsul-tags.svg)](https://badge.fury.io/gh/hedzr%2Fconsul-tags)
 [![Build Status](https://travis-ci.org/hedzr/consul-tags.svg?branch=master)](https://travis-ci.org/hedzr/consul-tags)
+[![license](https://img.shields.io/github/license/hedzr/consul-tags.svg)]()
+[![Docker Automated buil](https://img.shields.io/docker/automated/hedzr/consul-tags.svg)]()
+[![Docker Pulls](https://img.shields.io/docker/pulls/hedzr/consul-tags.svg)]()
+<!-- [![GitHub tag](https://img.shields.io/github/tag/hedzr/consul-tags.svg)]() -->
+<!-- [![ImageLayers Size](https://img.shields.io/imagelayers/image-size/hedzr/consul-tags/latest.svg)]() -->
 
 `consul-tags` can add, remove tag(s) of a consul service (one or all its instances).
 

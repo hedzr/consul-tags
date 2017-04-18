@@ -80,3 +80,62 @@ func ModifyTags(tags, addTags, removeTags []string, delim string, hasClear, isPl
 
 	return tags
 }
+
+func ModifyNodeMeta(tags map[string]string, addTags, removeTags []string, delim string, hasClear, isPlainMode, isString bool) map[string]string {
+	if hasClear {
+		tags = make(map[string]string, 0)
+		log.Info("      - slice: cleared.")
+	}
+
+	if !isPlainMode {
+		log.Debug("    --- in ext mode")
+		list := make([]string, 0)
+		for _, t := range removeTags {
+			if isString {
+				list = append(list, t)
+			} else {
+				for _, t1 := range strings.Split(t, ",") {
+					list = append(list, t1)
+				}
+			}
+		}
+		for _, t := range list {
+			log.Debugf("    --- slice: erasing %s", t)
+			for {
+				ta := strings.Split(t, delim)
+				if ta[0] != "" {
+					delete(tags, ta[0])
+				}
+				log.Infof("      - slice: erased '%s%s...'", ta[0], delim)
+			}
+		}
+		list = make([]string, 0)
+		for _, t := range addTags {
+			if isString {
+				list = append(list, t)
+			} else {
+				for _, t1 := range strings.Split(t, ",") {
+					list = append(list, t1)
+				}
+			}
+		}
+		for _, t := range list {
+			log.Debugf("    --- slice: appending %s", t)
+			ta := strings.Split(t, delim)
+			tak := ta[0]
+			tav := strings.Join(ta[1:], delim)
+			tags[tak] = tav
+			log.Debugf("      - slice: set/appended '%s%s...'", tak, delim)
+		}
+
+	} else {
+		for _, t := range removeTags {
+			delete(tags, t)
+		}
+		for _, t := range addTags {
+			tags[t] = ""
+		}
+	}
+
+	return tags
+}
