@@ -99,46 +99,49 @@ func modifyServiceTags(registrar *Registrar, c *cli.Context) {
 
 func modifyServiceTagsByName(registrar *Registrar, c *cli.Context, name string) {
 	log.Debugf("Modifying the tags of service '%s'...", name)
-	theServices, err := QueryService(name, registrar.FirstClient.Catalog())
+	catalogServices, err := QueryService(name, registrar.FirstClient.Catalog())
 	if err != nil {
 		log.Critical(fmt.Errorf("Error: %v", err))
 	} else {
 		//registrarId, registrarAddr, registrarPort := consulapi[0].ServiceID, consulapi[0].Address, consulapi[0].ServicePort
-		//fmt.Printf("    Using '%s', %s:%d\n", userServices[0].ServiceID, userServices[0].Address, userServices[0].ServicePort)
-		for _, s := range theServices {
-			// 服务 s 所在的 Node
-			cn := NodeToAgent(registrar, s.Node)
+		//fmt.Printf("    Using '%catalogService', %catalogService:%d\n", userServices[0].ServiceID, userServices[0].Address, userServices[0].ServicePort)
+		for _, catalogService := range catalogServices {
+			// 服务 catalogService 所在的 Node
+			cn := NodeToAgent(registrar, catalogService.Node)
 			// 节点 cn 的服务表中名为 "consulapi" 的服务
 			as := CatalogNodeGetService(cn, SERVICE_CONSUL_API)
-			// 从 consulapi 指示Agent（也即服务 s 所对应的 Agent），建立一个临时的 Client
+			// 从 consulapi 指示Agent（也即服务 catalogService 所对应的 Agent），建立一个临时的 Client
 			client := getClient(as.Address, as.Port, c)
-			agentService := cn.Services[s.ServiceID]
+			agentService := cn.Services[catalogService.ServiceID]
 
-			tags := ModifyTags(s.ServiceTags, c.StringSlice("add"), c.StringSlice("rm"), c.String("delim"), c.Bool("clear"), c.Bool("plain"), c.Bool("string"))
+			tags := ModifyTags(catalogService.ServiceTags, c.StringSlice("add"), c.StringSlice("rm"), c.String("delim"), c.Bool("clear"), c.Bool("plain"), c.Bool("string"))
 
 			//for _, t = range tags {
 			//log.Debugf("    *** Tags: %v", tags)
 			//}
 
-			client.Agent().ServiceRegister(&api.AgentServiceRegistration{
-				ID:                s.ServiceID,
-				Name:              s.ServiceName,
+			if err = client.Agent().ServiceRegister(&api.AgentServiceRegistration{
+				ID:                catalogService.ServiceID,
+				Name:              catalogService.ServiceName,
 				Tags:              tags,
-				Port:              s.ServicePort,
+				Port:              catalogService.ServicePort,
 				Address:           agentService.Address,
-				EnableTagOverride: s.ServiceEnableTagOverride,
-			})
+				EnableTagOverride: catalogService.ServiceEnableTagOverride,
+			}); err != nil {
+				log.Critical(fmt.Errorf("Error: %v", err))
+			}
 
-			//重新载入s的等价物，才能得到新的tags集合，s.ServiceTags并不会自动更新为新集合
-			sNew, _ := QueryServiceByID(s.ServiceID, client)
+			//重新载入s的等价物，才能得到新的tags集合，catalogService.ServiceTags并不会自动更新为新集合
+			sNew, _ := QueryServiceByID(catalogService.ServiceID, client)
 
-			//fmt.Printf("    #%d. id='%s'[%s:%d], tags=%v, meta=%v, Node: %s,%s:%d\n",
-			//	i, s.ServiceID, s.ServiceAddress, s.ServicePort,
-			//	sNew.Tags, s.NodeMeta, s.Node, s.Address, as.Port)
-			//log.Debugf("    #%d. id='%s'[%s:%d], tags=%v, meta=%v, Node: %s,%s\n",
-			//	i, s.ServiceID, s.ServiceAddress, s.ServicePort,
-			//	s.ServiceTags, s.NodeMeta, s.Node, s.Address)
-			fmt.Printf("%s: %s\n", s.ServiceID, strings.Join(sNew.Tags, ","))
+			//fmt.Printf("    #%d. id='%catalogService'[%catalogService:%d], tags=%v, meta=%v, Node: %catalogService,%catalogService:%d\n",
+			//	i, catalogService.ServiceID, catalogService.ServiceAddress, catalogService.ServicePort,
+			//	sNew.Tags, catalogService.NodeMeta, catalogService.Node, catalogService.Address, as.Port)
+			//log.Debugf("    #%d. id='%catalogService'[%catalogService:%d], tags=%v, meta=%v, Node: %catalogService,%catalogService\n",
+			//	i, catalogService.ServiceID, catalogService.ServiceAddress, catalogService.ServicePort,
+			//	catalogService.ServiceTags, catalogService.NodeMeta, catalogService.Node, catalogService.Address)
+			fmt.Printf("%s: %s\n", catalogService.ServiceID, strings.Join(sNew.Tags, ","))
+			fmt.Printf("\tmeta: %v\n", catalogService.NodeMeta)
 		}
 	}
 }
