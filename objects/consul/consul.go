@@ -281,6 +281,16 @@ var Commands = []*cli.Command{
 						Aliases: []string{"s"},
 						Usage:   "Default a tag string will be split by comma(,), and treated as a string list; but string mode disable this.",
 					},
+					&cli.BoolFlag{
+						Name:    "meta",
+						Aliases: []string{"m"},
+						Usage:   "In 'Meta Mode', service 'NodeMeta' field will be updated instead of 'Tags'. (--plain assumed false)",
+					},
+					&cli.BoolFlag{
+						Name:    "both",
+						Aliases: []string{"2"},
+						Usage:   "In 'Both Mode', both of 'NodeMeta' and 'Tags' field will be updated.",
+					},
 				},
 				Subcommands: []*cli.Command{
 					{

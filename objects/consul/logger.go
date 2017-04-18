@@ -1,9 +1,9 @@
 package consul
 
 import (
+	log "github.com/cihub/seelog"
 	"os"
 	"path"
-	log "github.com/cihub/seelog"
 
 	"fmt"
 	"gopkg.in/urfave/cli.v2"
@@ -67,7 +67,7 @@ func InitLogger() {
 	seelogPath := path.Join(homeDir, ".devops.seelog.xml")
 	if _, err := os.Stat(seelogPath); err == nil {
 		logger, err = log.LoggerFromConfigAsFile(seelogPath)
-	}else {
+	} else {
 		basicLogConfig := DEFAULT_SEELOG_CONFIG
 		logger, err = log.LoggerFromConfigAsString(basicLogConfig)
 	}
@@ -76,7 +76,6 @@ func InitLogger() {
 		return
 	}
 	log.ReplaceLogger(logger)
-
 
 	//log.Trace("TRACE")
 	//log.Debug("DEBUG")
@@ -92,7 +91,7 @@ func check(e error) {
 	}
 }
 
-func WriteDefaultLogger (c *cli.Context) {
+func WriteDefaultLogger(c *cli.Context) {
 	homeDir := os.Getenv("HOME")
 	seelogPath := path.Join(homeDir, ".devops.seelog.xml")
 
