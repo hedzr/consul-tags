@@ -18,9 +18,9 @@ variables:
   #PROJ_NAME: consul-tags
 
 before_script:
-#  - 'export PROJ_NAMESPACE=hedzr.com'
-#  - 'export PROJ_NAME=$CI_PROJECT_NAME'
-#  - 'export PROJ_NAME=consul-tags'
+  #  - 'export PROJ_NAMESPACE=hedzr.com'
+  #  - 'export PROJ_NAME=$CI_PROJECT_NAME'
+  #  - 'export PROJ_NAME=consul-tags'
   - 'export BIN_NAME=$PROJ_NAME'
   - 'export GOVER=1.8'
   - 'export GOROOT=$HOME/golang/go; export GOPATH=$HOME/gopath; export PATH=$PATH:$GOROOT/bin; export PATH=$PATH:$GOPATH/bin'

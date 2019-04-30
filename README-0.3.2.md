@@ -52,27 +52,20 @@ go get -u github.com/hedzr/consul-tags/objects/consul
 
 
 ```bash
-
-# run consul demo instance for testing
-./build.sh consul run &
-
-# use the local consul demo instance as default addrress, see also `--addr` in `consul-tags ms --help`
-export CT_APP_MS_ADDR=localhost:8500
-
 # list tags
 consul-tags ms --name test-redis tags ls
-consul-tags ms tags ls --name test-redis
-# modify tags
-consul-tags ms tags modify --name test-redis tags --add a,c,e
-consul-tags ms tags mod --name test-redis --add a --add c --add e
-consul-tags ms tags mod --name test-redis --rm a,c,e
-consul-tags ms tags mod --name test-redis --rm a --rm c --rm e
+# add tags
+consul-tags ms --name test-redis tags --add a,c,e
+consul-tags ms --name test-redis tags --add a --add c --add e
+# remove tags
+consul-tags ms --name test-redis tags --rm a,c,e
+consul-tags ms --name test-redis tags --rm a --rm c --rm e
 # by id
-consul-tags ms tags ls --id test-redis-1
+consul-tags ms --id test-redis-1 tags ls
 
 # toggle master/slave
-consul-tags ms tags toggle --name test-redis --addr 10.7.13.1:6379 --set role=master --reset role=slave
-consul-tags ms tags tog --name test-mq --addr 10.7.16.3:5672 --set role=leader,type=ram --reset role=peer,type=disk
+consul-tags ms --name test-redis tags toggle --addr 10.7.13.1:6379 --set role=master --reset role=slave
+consul-tags ms --name test-mq tags toggle --addr 10.7.16.3:5672 --set role=leader,type=ram --reset role=peer,type=disk
 
 # get commands and sub-commands help
 consul-tags ms -h
@@ -80,7 +73,7 @@ consul-tags ms -h
 consul-tags -h
 ```
 
-Default consul address is `consul.ops.local:8500`, can be overridden with environment variable `CT_APP_MS_ADDR` (host:port), too. Such as:
+Default consul address is `consul.ops.local:8500`, can be overriden with environment variable `CONSUL_ADDR` (host:port), too. Such as:
 
 ```
 CONSUL_ADDR=127.0.0.1:8500 consul-tags ms --name=consul tags ls
@@ -94,14 +87,24 @@ consul-tags --addr 127.0.0.1:8500 ms --name=consul tags ls
 ### COMMANDS:
 
 ```
-     kv              K/V pair Operations, ...
-     ms, service, m  Microservice Operations, ...
-     help, h         Shows a list of commands or help for one command
+     kv           K/V pair Operations, ...
+     ms, service  Microservice Operations, ...
+     help, h      Shows a list of commands or help for one command
 ```
 
 ### GLOBAL OPTIONS:
 
 ```
+   --addr HOST[:PORT], -a HOST[:PORT]  Consul address and port: HOST[:PORT] (No leading 'http(s)://') (default: "consul.ops.local") [$CONSUL_ADDR]
+   --port value, -p value              Consul port (default: 8500) [$CONSUL_PORT]
+   --prefix value                      Root key prefix (default: "/") [$CONSUL_PREFIX]
+   --cacert value, -r value            Client CA cert [$CONSUL_CA_CERT]
+   --cert value, -t value              Client cert [$CONSUL_CERT]
+   --scheme value, -s value            Consul connection scheme (HTTP or HTTPS) (default: "http") [$CONSUL_SCHEME]
+   --insecure, -K                      Skip TLS host verification (default: false) [$CONSUL_INSECURE]
+   --username value, -U value          HTTP Basic auth user [$CONSUL_USER]
+   --password value, -P value          HTTP Basic auth password [$CONSUL_PASS]
+   --key value, -Y value               Client key [$CONSUL_KEY]
    --help, -h                          show help (default: false)
    --init-completion value             generate completion code. Value must be 'bash' or 'zsh'
    --version, -v                       print the version (default: false)
@@ -109,7 +112,7 @@ consul-tags --addr 127.0.0.1:8500 ms --name=consul tags ls
 
 ## Shell completion
 
-
+with bonus from `urfave/cli`, you can install auto-completion for this binary:
 
 ```bash
 eval "`consul-tags --init-completion bash`"

@@ -1,26 +1,26 @@
 {
-  "addresses": {
-    "dns": "0.0.0.0",
-    "http": "0.0.0.0"
-  },
-  "advertise_addr": "127.0.0.1",
-  "bootstrap": true,
-  "client_addr": "0.0.0.0",
-  "data_dir": "/tmp/consul",
-  "datacenter": "cn-north-1",
-  "encrypt": "FwpxhYm1Sc5LfFsdxjxkzg==",
-  "leave_on_terminate": false,
-  "log_level": "INFO",
-  "node_name": "laoye-mac",
-  "ports": {
-    "dns": 8600,
-    "http": 8500
-  },
-  "recursor": "8.8.8.8",
-  "rejoin_after_leave": true,
-  "retry_interval": "10s",
-  "retry_max": 100,
-  "server": true,
-  "skip_leave_on_interrupt": true,
-  "ui_dir": "/usr/local/consul/www"
+    "addresses": {
+        "dns": "0.0.0.0",
+        "http": "0.0.0.0"
+    },
+    "advertise_addr": "127.0.0.1",
+    "bootstrap": true,
+    "client_addr": "0.0.0.0",
+    "data_dir": "/tmp/consul",
+    "datacenter": "cn-north-1",
+    "encrypt": "FwpxhYm1Sc5LfFsdxjxkzg==",
+    "leave_on_terminate": false,
+    "log_level": "INFO",
+    "node_name": "laoye-mac",
+    "ports": {
+        "dns": 8600,
+        "http": 8500
+    },
+    "recursor": "8.8.8.8",
+    "rejoin_after_leave": true,
+    "retry_interval": "10s",
+    "retry_max": 100,
+    "server": true,
+    "skip_leave_on_interrupt": true,
+    "ui_dir": "/usr/local/consul/www"
 }

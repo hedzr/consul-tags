@@ -1,11 +1,15 @@
+/*
+ * Copyright © 2019 Hedzr Yeh.
+ */
+
 package consul
 
 import (
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"strings"
 	"time"
-	//"log"
-	log "github.com/cihub/seelog"
+
 	"github.com/hashicorp/consul/api"
 )
 
@@ -40,15 +44,15 @@ func MakeClient() *api.Client {
 
 func MakeACLClient() *api.Client {
 	return MakeClientWithConfig(
-		//t,
+		// t,
 		func(clientConfig *api.Config) {
 			clientConfig.Token = "root"
 		},
-		//, func(serverConfig *testutil.TestServerConfig) {
-		//	serverConfig.ACLMasterToken = "root"
-		//	serverConfig.ACLDatacenter = "dc1"
-		//	serverConfig.ACLDefaultPolicy = "deny"
-		//}
+		// , func(serverConfig *testutil.TestServerConfig) {
+		// 	serverConfig.ACLMasterToken = "root"
+		// 	serverConfig.ACLDatacenter = "dc1"
+		// 	serverConfig.ACLDefaultPolicy = "deny"
+		// }
 	)
 }
 
@@ -60,22 +64,22 @@ func MakeClientWithConfig(cb1 configCallback) *api.Client {
 		cb1(conf)
 	}
 
-	//// Create server
-	//server := testutil.NewTestServerConfig(t, cb2)
-	//conf.Address = server.HTTPAddr
+	// // Create server
+	// server := testutil.NewTestServerConfig(t, cb2)
+	// conf.Address = server.HTTPAddr
 
 	// Create client
 	client, err := api.NewClient(conf)
 	if err != nil {
-		log.Critical(fmt.Errorf("err: %v", err))
+		logrus.Fatalf("err: %v", err)
 	}
 
-	return client //, server
+	return client // , server
 }
 
 func QueryService(name string, catalog *api.Catalog) ([]*api.CatalogService, error) {
-	//metaQ := map[string]string{"Name": name}
-	services, meta, err := catalog.Service(name, "", nil) //&api.QueryOptions{NodeMeta: metaQ})
+	// metaQ := map[string]string{"Name": name}
+	services, meta, err := catalog.Service(name, "", nil) // &api.QueryOptions{NodeMeta: metaQ})
 	if err != nil {
 		return nil, err
 	}
@@ -90,7 +94,7 @@ func QueryService(name string, catalog *api.Catalog) ([]*api.CatalogService, err
 	return services, nil
 }
 
-func QueryServiceByID(serviceID string, client *api.Client) (*api.AgentService, error) {
+func QueryServiceByID(serviceID string, client *api.Client) (as *api.AgentService, err error) {
 	var res *api.AgentService = nil
 	WaitForResult(func() (bool, error) {
 		cn, err := client.Agent().Services()
@@ -107,14 +111,12 @@ func QueryServiceByID(serviceID string, client *api.Client) (*api.AgentService, 
 
 		return false, fmt.Errorf("Bad: cannot found service '#%s'", serviceID)
 	}, func(err error) {
-		log.Critical(fmt.Errorf("err: %v", err))
+		logrus.Fatalf("err: %v", err)
 	})
 	return res, nil
 }
 
-func AgentServiceToCatalogService(as *api.AgentService, client *api.Client) (*api.CatalogService, error) {
-	var res *api.CatalogService = nil
-	var err error = nil
+func AgentServiceToCatalogService(as *api.AgentService, client *api.Client) (res *api.CatalogService, err error) {
 	var cn []*api.CatalogService = nil
 	WaitForResult(func() (bool, error) {
 		catalog := client.Catalog()
@@ -130,9 +132,9 @@ func AgentServiceToCatalogService(as *api.AgentService, client *api.Client) (*ap
 		}
 		return false, fmt.Errorf("Bad: cannot found service '#%s' inside catalog", as.ID)
 	}, func(err error) {
-		log.Critical(fmt.Errorf("err: %v", err))
+		logrus.Fatalf("err: %v", err)
 	})
-	return res, err
+	return
 }
 
 func CatalogNodeGetService(cn *api.CatalogNode, serviceName string) *api.AgentService {
@@ -147,17 +149,17 @@ func CatalogNodeGetService(cn *api.CatalogNode, serviceName string) *api.AgentSe
 func NodeToAgent(registrar *Registrar, node string) *api.CatalogNode {
 	cn, qm, err := registrar.FirstClient.Catalog().Node(node, nil)
 	if err != nil {
-		log.Critical(fmt.Errorf("Error: %v", err))
+		logrus.Fatalf("Error: %v", err)
 	} else {
-		log.Debugf("    QueryMeta: %v", qm)
-		//cn.Node.Address
+		logrus.Debugf("    QueryMeta: %v", qm)
+		// cn.Node.Address
 		return cn
 	}
 
 	fmt.Println("Querying nodes...")
 	WaitForResult(func() (bool, error) {
-		//meta := map[string]string{"somekey": "somevalue"}
-		//catalog.Nodes(&QueryOptions{NodeMeta: meta})
+		// meta := map[string]string{"somekey": "somevalue"}
+		// catalogrus.Nodes(&QueryOptions{NodeMeta: meta})
 		nodes, meta, err := registrar.FirstClient.Catalog().Nodes(nil)
 		if err != nil {
 			return false, err
@@ -176,12 +178,12 @@ func NodeToAgent(registrar *Registrar, node string) *api.CatalogNode {
 		}
 
 		for _, node := range nodes {
-			log.Debugf("    Nodes[i]: %v", node)
+			logrus.Debugf("    Nodes[i]: %v", node)
 		}
 
 		return true, nil
 	}, func(err error) {
-		log.Critical(fmt.Errorf("err: %v", err))
+		logrus.Fatalf("err: %v", err)
 	})
 	return nil
 }
@@ -190,30 +192,30 @@ func GetConsulApiEntryPoint(registrar *Registrar) *api.CatalogService {
 	var err error = nil
 	registrar.Clients, err = QueryService(SERVICE_CONSUL_API, registrar.FirstClient.Catalog())
 	if err != nil {
-		log.Critical(fmt.Errorf("err: %v", err))
+		logrus.Fatalf("err: %v", err)
 		return nil
 	} else {
-		//registrarId, registrarAddr, registrarPort := consulapi[0].ServiceID, consulapi[0].Address, consulapi[0].ServicePort
-		log.Tracef("    Using '%s', %s:%d", registrar.Clients[0].ServiceID, registrar.Clients[0].Address, registrar.Clients[0].ServicePort)
+		// registrarId, registrarAddr, registrarPort := consulapi[0].ServiceID, consulapi[0].Address, consulapi[0].ServicePort
+		logrus.Tracef("    Using '%s', %s:%d", registrar.Clients[0].ServiceID, registrar.Clients[0].Address, registrar.Clients[0].ServicePort)
 		registrar.CurrentClient = registrar.Clients[0]
 		return registrar.CurrentClient
 	}
 
-	//consulapi := findConsulApi(base)
-	//if len(consulapi) > 0 {
-	//	registrarId, registrarAddr, registrarPort := consulapi[0].ServiceID, consulapi[0].Address, consulapi[0].ServicePort
-	//	fmt.Printf("    Using '%s', %s:%d\n", registrarId, registrarAddr, registrarPort)
-	//}
+	// consulapi := findConsulApi(base)
+	// if len(consulapi) > 0 {
+	// 	registrarId, registrarAddr, registrarPort := consulapi[0].ServiceID, consulapi[0].Address, consulapi[0].ServicePort
+	// 	fmt.Printf("    Using '%s', %s:%d\n", registrarId, registrarAddr, registrarPort)
+	// }
 }
 
 func findConsulApi(base *Base) []*api.CatalogService {
 	services, err := QueryService(SERVICE_CONSUL_API, base.FirstClient.Catalog())
 	if err != nil {
-		log.Critical(fmt.Errorf("err: %v", err))
+		logrus.Fatalf("err: %v", err)
 		return nil
 	} else {
 		for i, service := range services {
-			log.Tracef("    Service[%d, %s]: %v\n", i, service.ServiceID, service)
+			logrus.Tracef("    Service[%d, %s]: %v\n", i, service.ServiceID, service)
 		}
 		return services
 	}

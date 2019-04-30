@@ -1,3 +1,7 @@
+/*
+ * Copyright © 2019 Hedzr Yeh.
+ */
+
 package util
 
 import (
@@ -18,16 +22,16 @@ func ParseHostOrIp(s string, ipv4 bool) (net.IP, error) {
 		if ip := net.ParseIP(a); ip != nil && !ip.IsLoopback() {
 			if ipv4 {
 				if ip.To4() != nil {
-					//os.Stdout.WriteString(ip.String() + "\n")
+					// os.Stdout.WriteString(ip.String() + "\n")
 					if ipx.IsUnspecified() {
-						ipx = ip //.String()
+						ipx = ip // .String()
 					}
 				}
 			} else {
 				if ip.To16() != nil {
-					//os.Stdout.WriteString(ip.String() + "\n")
+					// os.Stdout.WriteString(ip.String() + "\n")
 					if ipx.IsUnspecified() {
-						ipx = ip //.String()
+						ipx = ip // .String()
 					}
 				}
 			}
@@ -40,7 +44,7 @@ func GetLanIp(ipv4 bool) (string, error) {
 	addrs, err := net.InterfaceAddrs()
 	if err != nil {
 		os.Stderr.WriteString("Oops: " + err.Error() + "\n")
-		return "", err //os.Exit(1)
+		return "", err // os.Exit(1)
 	}
 
 	ip := ""

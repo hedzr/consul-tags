@@ -1,35 +1,43 @@
+/*
+ * Copyright © 2019 Hedzr Yeh.
+ */
+
 package consul
 
 import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"gopkg.in/urfave/cli.v2"
+	"github.com/hashicorp/consul/api"
+	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
 	"path"
-	//"log"
-	log "github.com/cihub/seelog"
-	"github.com/hashicorp/consul/api"
 )
 
-func Restore(c *cli.Context) (err error) {
+func Restore() (err error) {
+	var (
+		client *api.Client
+		bkup   *kvJSON
+		v      string
+	)
 	// Get KV client
-	client, _, err := getConnectionFromFlags(c)
+	client, bkup, err = getConnectionFromFlags()
 	if err != nil {
-		return err
+		return
 	}
+
 	kv := client.KV()
 
 	// Get backup JSON from file
-	bkup, err := readBackupFile(c.Args().First())
+	bkup, err = readBackupFile(viper.GetString("app.kv.input"))
 	if err != nil {
 		return fmt.Errorf("Error getting data: %v", err)
 	}
 
 	// restore file contents
-	var v string
 	for k, ve := range bkup.Values {
 		switch ve.Encoding {
 		case "base64":
@@ -44,7 +52,7 @@ func Restore(c *cli.Context) (err error) {
 			return fmt.Errorf("Unknown encoding '%v' for key '%s'", ve.Encoding, k)
 		}
 
-		log.Debugf("Restoring key '%s'", k)
+		logrus.Debugf("Restoring key '%s'", k)
 		if _, err := kv.Put(&api.KVPair{
 			Key:   k,
 			Value: []byte(v),
@@ -58,10 +66,11 @@ func Restore(c *cli.Context) (err error) {
 func readBackupFile(pathname string) (bkup *kvJSON, err error) {
 	var f *os.File
 	f, err = os.Open(pathname)
-	defer f.Close()
 	if err != nil {
 		return
 	}
+
+	defer f.Close()
 	b, err := ioutil.ReadAll(f)
 	if err != nil {
 		return

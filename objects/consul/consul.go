@@ -1,14 +1,16 @@
+/*
+ * Copyright © 2019 Hedzr Yeh.
+ */
+
 package consul
 
 import (
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"gopkg.in/urfave/cli.v2" // imports as package "cli"
 	"strconv"
 	"strings"
 	"time"
-	//"log"
-	//"github.com/Sirupsen/logrus"
-	log "github.com/cihub/seelog"
 )
 
 const (
@@ -32,8 +34,8 @@ type kvJSON struct {
 type Glyph struct {
 	Name     string
 	Position int
-	ID       int //ID must > 0
-	ParentID int //if ParentID equal 0, the Glyph has no parents
+	ID       int // ID must > 0
+	ParentID int // if ParentID equal 0, the Glyph has no parents
 }
 
 type InputZ interface {
@@ -51,21 +53,21 @@ func (s MyInputZ) Int(name string) (int, error) {
 
 //
 //
-//func (s *InputZ) Int(name string) (int, error) {
-//	//
-//}
+// func (s *InputZ) Int(name string) (int, error) {
+// 	//
+// }
 
-//var consul_addr = ""
-//var gingerCrouton = false
+// var consul_addr = ""
+// var gingerCrouton = false
 
 var Flags = []cli.Flag{
-	//altsrc.NewIntFlag(cli.IntFlag{Name: "test"}),
+	// altsrc.NewIntFlag(cli.IntFlag{Name: "test"}),
 
 	&cli.StringFlag{
 		Name:    "addr",
 		Aliases: []string{"a"},
 		Value:   DEFAULT_CONSUL_HOST,
-		//Destination: &consul_addr,
+		// Destination: &consul_addr,
 		Usage:   "Consul address and port: `HOST[:PORT]` (No leading 'http(s)://')",
 		EnvVars: []string{"CONSUL_ADDR"},
 	},
@@ -128,9 +130,9 @@ var Flags = []cli.Flag{
 }
 
 func Before(c *cli.Context) error {
-	//log.Printf("**** consul.Before()\n")
-	//logrus.Info("**** consul.Before()")
-	log.Trace("**** consul.Before()")
+	// logrus.Printf("**** consul.Before()\n")
+	// logrus.Info("**** consul.Before()")
+	logrus.Trace("**** consul.Before()")
 	addr := c.String("addr")
 
 	if addr == "" {
@@ -140,8 +142,8 @@ func Before(c *cli.Context) error {
 		addr = addr + ":" + c.String("port")
 	}
 	c.Set("addr", addr)
-	//logrus.Info("**** Formal --addr='%s'", addr)
-	log.Tracef("**** Formal --addr='%s'", addr)
+	// logrus.Info("**** Formal --addr='%s'", addr)
+	logrus.Tracef("**** Formal --addr='%s'", addr)
 	return nil
 }
 
@@ -151,9 +153,9 @@ var Commands = []*cli.Command{
 		Usage: "K/V pair Operations, ...",
 		Subcommands: []*cli.Command{
 			{
-				Name:   "backup",
-				Usage:  "Dump Consul's KV database to a JSON/YAML file",
-				Action: Backup,
+				Name:  "backup",
+				Usage: "Dump Consul's KV database to a JSON/YAML file",
+				// Action: Backup,
 				Flags: []cli.Flag{
 					&cli.StringFlag{
 						Name:    "outfile,o",
@@ -163,9 +165,9 @@ var Commands = []*cli.Command{
 				},
 			},
 			{
-				Name:   "restore",
-				Usage:  "restore a JSON/YAML backup of Consul's KV store",
-				Action: Restore,
+				Name:  "restore",
+				Usage: "restore a JSON/YAML backup of Consul's KV store",
+				// Action: Restore,
 			},
 		},
 		Action: func(c *cli.Context) error {
@@ -192,26 +194,26 @@ var Commands = []*cli.Command{
 			},
 		},
 		Subcommands: []*cli.Command{
-			//{
-			//	Name:  "test",
-			//	Usage: "make a test (consulapi, consul)",
-			//	Action: func(c *cli.Context) error {
-			//		Test(c)
-			//		return nil
-			//	},
-			//},
-			//{
-			//	Name:  "test1",
-			//	Usage: "make a test 1 (redis tags modify)",
-			//	Action: func(c *cli.Context) error {
-			//		Test1(c)
-			//		return nil
-			//	},
-			//},
+			// {
+			// 	Name:  "test",
+			// 	Usage: "make a test (consulapi, consul)",
+			// 	Action: func(c *cli.Context) error {
+			// 		Test(c)
+			// 		return nil
+			// 	},
+			// },
+			// {
+			// 	Name:  "test1",
+			// 	Usage: "make a test 1 (redis tags modify)",
+			// 	Action: func(c *cli.Context) error {
+			// 		Test1(c)
+			// 		return nil
+			// 	},
+			// },
 			{
-				Name:   "ls",
-				Usage:  "list service definitions by its name or id",
-				Action: TagsList,
+				Name:  "ls",
+				Usage: "list service definitions by its name or id",
+				// Action: TagsList,
 				Description: `Normal Usages:
 
     $ devops consul ms --name serive-name ls
@@ -306,9 +308,9 @@ var Commands = []*cli.Command{
 				},
 				Subcommands: []*cli.Command{
 					{
-						Name:   "ls",
-						Usage:  "list service tags by its name or id",
-						Action: TagsList,
+						Name:  "ls",
+						Usage: "list service tags by its name or id",
+						// Action: TagsList,
 						Description: `Normal Usages:
 
     $ devops consul ms --name serive-name tags ls
@@ -318,9 +320,9 @@ var Commands = []*cli.Command{
 `,
 					},
 					{
-						Name:   "toggle",
-						Usage:  "Toggle service tags, master node to something and slaves nodes to others",
-						Action: TagsToggle,
+						Name:  "toggle",
+						Usage: "Toggle service tags, master node to something and slaves nodes to others",
+						// Action: TagsToggle,
 						Flags: []cli.Flag{
 							&cli.StringFlag{
 								Name:    "address",
@@ -348,7 +350,7 @@ var Commands = []*cli.Command{
 					},
 				},
 				Action: func(c *cli.Context) error {
-					Tags(c)
+					// Tags(c)
 					return nil
 				},
 			},
@@ -364,9 +366,9 @@ var Commands = []*cli.Command{
 		Aliases: []string{"l"},
 		Usage:   "logger helpers",
 		// SubFlags: []cli.Flag { {},{},...   },
-		//Flags:       consul.Flags,
-		Subcommands: LoggerCommands,
-		//Before:      consul.Before,
+		// Flags:       consul.Flags,
+		// Subcommands: LoggerCommands,
+		// Before:      consul.Before,
 		Action: func(c *cli.Context) error {
 			fmt.Println("logger task: ", c.Args().First())
 			return nil

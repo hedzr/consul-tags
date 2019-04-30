@@ -1,32 +1,34 @@
 {
-  "services": [{
-    "address": "sw2msq00",
-    "checks": [
-      {
-        "id": "check-test-rds",
-        "interval": "10s",
-        "name": "check test-rds alive on port 3306",
-        "tcp": "sw2msq00:3306",
-        "timeout": "1s"
-      }
-    ],
-    "enableTagOverride": false,
-    "id": "test-rds-sw2msq00",
-    "name": "test-rds",
-    "port": 3306,
-    "tags": [
-      "test-rds",
-      "well-known",
-      "id=db-sw2msq00",
-      "userid=1",
-      "qname=",
-      "version=5.6.27",
-      "arn=aliyun:rds:aliyun_new_1:1:db:intellibox",
-      "hostname=sw2msq00",
-      "database=demo",
-      "username=demo",
-      "password=demo~",
-      "NOTE="
+    "services": [
+        {
+            "address": "sw2msq00",
+            "checks": [
+                {
+                    "id": "check-test-rds",
+                    "interval": "10s",
+                    "name": "check test-rds alive on port 3306",
+                    "tcp": "sw2msq00:3306",
+                    "timeout": "1s"
+                }
+            ],
+            "enableTagOverride": false,
+            "id": "test-rds-sw2msq00",
+            "name": "test-rds",
+            "port": 3306,
+            "tags": [
+                "test-rds",
+                "well-known",
+                "id=db-sw2msq00",
+                "userid=1",
+                "qname=",
+                "version=5.6.27",
+                "arn=aliyun:rds:aliyun_new_1:1:db:intellibox",
+                "hostname=sw2msq00",
+                "database=demo",
+                "username=demo",
+                "password=demo~",
+                "NOTE="
+            ]
+        }
     ]
-  }]
 }

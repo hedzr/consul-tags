@@ -1,0 +1,9 @@
+---
+runmode: devel
+env-prefix: CT
+
+app:
+  version-sim:          # simulate as another version string
+  version:              # `version` is ignored by the value hard-coded into executable/binary file.
+
+

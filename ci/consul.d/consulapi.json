@@ -1,23 +1,23 @@
 {
-  "service": {
-    "checks": [
-      {
-        "http": "http://127.0.0.1:8500/v1/kv/ops/config/common",
-        "id": "check-consulapi-1",
-        "interval": "10s",
-        "name": "check alive on K/V - consul kv put 'ops/config/common' '---'. ",
-        "timeout": "1s"
-      }
-    ],
-    "enableTagOverride": false,
-    "id": "consulapi-1",
-    "name": "consulapi",
-    "address": "localhost",
-    "port": 8500,
-    "tags": [
-      "consul-api",
-      "well-known",
-      "consul-core"
-    ]
-  }
+    "service": {
+        "checks": [
+            {
+                "http": "http://127.0.0.1:8500/v1/kv/ops/config/common",
+                "id": "check-consulapi-1",
+                "interval": "10s",
+                "name": "check alive on K/V - consul kv put 'ops/config/common' '---'. ",
+                "timeout": "1s"
+            }
+        ],
+        "enableTagOverride": false,
+        "id": "consulapi-1",
+        "name": "consulapi",
+        "address": "localhost",
+        "port": 8500,
+        "tags": [
+            "consul-api",
+            "well-known",
+            "consul-core"
+        ]
+    }
 }

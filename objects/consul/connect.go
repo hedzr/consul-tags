@@ -1,3 +1,7 @@
+/*
+ * Copyright © 2019 Hedzr Yeh.
+ */
+
 package consul
 
 import (
@@ -5,14 +9,13 @@ import (
 	"fmt"
 	"github.com/hashicorp/consul/api"
 	"github.com/hedzr/consul-tags/util"
-	"gopkg.in/urfave/cli.v2"
+	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 	"net/http"
 	"time"
-	//"log"
-	log "github.com/cihub/seelog"
 )
 
-func getConnectionFromFlags(c *cli.Context) (client *api.Client, bkup *kvJSON, err error) {
+func getConnectionFromFlags() (client *api.Client, bkup *kvJSON, err error) {
 	// Start with the default Consul API config
 	config := api.DefaultConfig()
 
@@ -20,14 +23,14 @@ func getConnectionFromFlags(c *cli.Context) (client *api.Client, bkup *kvJSON, e
 	tlsConf := &tls.Config{}
 
 	// Set scheme and address:port
-	config.Scheme = c.String("scheme")
-	//config.Address = fmt.Sprintf("%s:%v", c.GlobalString("addr"), c.GlobalInt("port"))
-	config.Scheme = c.String("scheme")
-	config.Address = c.String("addr")
-	//if config.Address == "" {
-	//	config.Address = c.GlobalString("consul.addr")
-	//}
-	log.Debugf("Connecting to %s://%s ...", config.Scheme, config.Address)
+	config.Scheme = viper.GetString("app.ms.scheme")
+	// config.Address = fmt.Sprintf("%s:%v", c.GlobalString("app.ms.addr"), c.GlobalInt("app.ms.port"))
+	// config.Scheme = viper.GetString("app.ms.scheme")
+	config.Address = viper.GetString("app.ms.addr")
+	// if config.Address == "" {
+	// 	config.Address = c.GlobalString("consul.addr")
+	// }
+	logrus.Debugf("Connecting to %s://%s ...", config.Scheme, config.Address)
 
 	// Populate backup metadata
 	bkup = &kvJSON{
@@ -36,7 +39,7 @@ func getConnectionFromFlags(c *cli.Context) (client *api.Client, bkup *kvJSON, e
 	}
 
 	// Check for insecure flag
-	if c.Bool("insecure") {
+	if viper.GetBool("app.ms.insecure") {
 		tlsConf.InsecureSkipVerify = true
 		bkup.Connection["insecure"] = "true"
 	}
@@ -48,26 +51,26 @@ func getConnectionFromFlags(c *cli.Context) (client *api.Client, bkup *kvJSON, e
 	tlsConf.ClientCAs, _ = util.LoadSystemRootCAs()
 
 	// If --cert and --key are defined, load them and apply the TLS config
-	if len(c.String("cert")) > 0 && len(c.String("key")) > 0 {
+	if len(viper.GetString("app.ms.cert")) > 0 && len(viper.GetString("app.ms.key")) > 0 {
 		// Make sure scheme is HTTPS when certs are used, regardless of the flag
 		config.Scheme = "https"
-		bkup.Connection["cert"] = c.String("cert")
-		bkup.Connection["key"] = c.String("key")
+		bkup.Connection["cert"] = viper.GetString("app.ms.cert")
+		bkup.Connection["key"] = viper.GetString("app.ms.key")
 
 		// Load cert and key files
 		var cert tls.Certificate
-		cert, err = tls.LoadX509KeyPair(c.String("cert"), c.String("key"))
+		cert, err = tls.LoadX509KeyPair(viper.GetString("app.ms.cert"), viper.GetString("app.ms.key"))
 		if err != nil {
-			log.Criticalf("Could not load cert: %v", err)
+			logrus.Fatalf("Could not load cert: %v", err)
 		}
 		tlsConf.Certificates = append(tlsConf.Certificates, cert)
 
 		// If cacert is defined, add it to the cert pool
 		// else just use system roots
-		if len(c.String("cacert")) > 0 {
-			tlsConf.ClientCAs = util.AddCACert(c.String("cacert"), tlsConf.ClientCAs)
+		if len(viper.GetString("app.ms.cacert")) > 0 {
+			tlsConf.ClientCAs = util.AddCACert(viper.GetString("app.ms.cacert"), tlsConf.ClientCAs)
 			tlsConf.RootCAs = tlsConf.ClientCAs
-			bkup.Connection["cacert"] = c.String("cacert")
+			bkup.Connection["cacert"] = viper.GetString("app.ms.cacert")
 		}
 	}
 
@@ -81,22 +84,22 @@ func getConnectionFromFlags(c *cli.Context) (client *api.Client, bkup *kvJSON, e
 	}
 
 	// Check for HTTP auth flags
-	if len(c.String("user")) > 0 && len(c.String("pass")) > 0 {
+	if len(viper.GetString("app.ms.user")) > 0 && len(viper.GetString("app.ms.pass")) > 0 {
 		config.HttpAuth = &api.HttpBasicAuth{
-			Username: c.String("user"),
-			Password: c.String("pass"),
+			Username: viper.GetString("app.ms.user"),
+			Password: viper.GetString("app.ms.pass"),
 		}
-		bkup.Connection["user"] = c.String("user")
-		bkup.Connection["pass"] = c.String("pass")
+		bkup.Connection["user"] = viper.GetString("app.ms.user")
+		bkup.Connection["pass"] = viper.GetString("app.ms.pass")
 	}
 
 	// Generate and return the API client
 	client, err = api.NewClient(config)
 	if err != nil {
-		log.Criticalf("Error: %v", err)
+		logrus.Fatalf("Error: %v", err)
 		fmt.Println("Failed!")
 	} else {
 		fmt.Println("successfully")
 	}
-	return client, bkup, nil
+	return
 }

@@ -1,0 +1,15 @@
+app:
+  x:
+
+  ms:
+    addr:                 # Consul address and port: HOST[:PORT] (No leading 'http(s)://'), such as: c3.ops.local
+    port:                 # default: 8500.
+    insecure:             # default: false. Skip TLS host verification
+    prefix:               # default: /. Root key prefix
+    cacert:               # Client CA cert
+    cert:                 # Client cert
+    scheme:               # Consul connection scheme (HTTP or HTTPS)
+    username:             # HTTP Basic auth username
+    password:             # HTTP Basic auth password
+    key:                  # client key
+

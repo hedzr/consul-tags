@@ -1,63 +1,66 @@
 {
-  "services": [{
-    "address": "sw2rmq02",
-    "checks": [
-      {
-        "id": "check-test-sqs",
-        "interval": "10s",
-        "name": "check test-sqs alive on port 5672",
-        "tcp": "sw2rmq02:5672",
-        "timeout": "1s"
-      }
-    ],
-    "enableTagOverride": false,
-    "id": "test-sqs-ram-1",
-    "name": "test-sqs",
-    "port": 5672,
-    "tags": [
-      "test-sqs",
-      "well-known",
-      "role=master",
-      "type=ram",
-      "id=sqs-sw2rmq02",
-      "userid=1",
-      "qname=q*",
-      "version=3.6.5",
-      "arn=aliyun:rds:aliyun_new_1:1:sqs:q*",
-      "hostname=sw2msq00",
-      "username=demo",
-      "password=",
-      "NOTE="
+    "services": [
+        {
+            "address": "sw2rmq02",
+            "checks": [
+                {
+                    "id": "check-test-sqs",
+                    "interval": "10s",
+                    "name": "check test-sqs alive on port 5672",
+                    "tcp": "sw2rmq02:5672",
+                    "timeout": "1s"
+                }
+            ],
+            "enableTagOverride": false,
+            "id": "test-sqs-ram-1",
+            "name": "test-sqs",
+            "port": 5672,
+            "tags": [
+                "test-sqs",
+                "well-known",
+                "role=master",
+                "type=ram",
+                "id=sqs-sw2rmq02",
+                "userid=1",
+                "qname=q*",
+                "version=3.6.5",
+                "arn=aliyun:rds:aliyun_new_1:1:sqs:q*",
+                "hostname=sw2msq00",
+                "username=demo",
+                "password=",
+                "NOTE="
+            ]
+        },
+        {
+            "address": "sw2tcs03",
+            "checks": [
+                {
+                    "id": "check-test-sqs",
+                    "interval": "10s",
+                    "name": "check test-sqs alive on port 5672",
+                    "tcp": "sw2tcs03:5672",
+                    "timeout": "1s"
+                }
+            ],
+            "enableTagOverride": false,
+            "id": "test-sqs-disc-1",
+            "name": "test-sqs",
+            "port": 5672,
+            "tags": [
+                "test-sqs",
+                "well-known",
+                "role=slave",
+                "type=disc",
+                "id=sqs-sw2tcs03",
+                "userid=1",
+                "qname=q*",
+                "version=3.6.5",
+                "arn=aliyun:rds:aliyun_new_1:1:sqs:q*",
+                "hostname=sw2tcs03",
+                "username=demo",
+                "password=",
+                "NOTE="
+            ]
+        }
     ]
-  },{
-    "address": "sw2tcs03",
-    "checks": [
-      {
-        "id": "check-test-sqs",
-        "interval": "10s",
-        "name": "check test-sqs alive on port 5672",
-        "tcp": "sw2tcs03:5672",
-        "timeout": "1s"
-      }
-    ],
-    "enableTagOverride": false,
-    "id": "test-sqs-disc-1",
-    "name": "test-sqs",
-    "port": 5672,
-    "tags": [
-      "test-sqs",
-      "well-known",
-      "role=slave",
-      "type=disc",
-      "id=sqs-sw2tcs03",
-      "userid=1",
-      "qname=q*",
-      "version=3.6.5",
-      "arn=aliyun:rds:aliyun_new_1:1:sqs:q*",
-      "hostname=sw2tcs03",
-      "username=demo",
-      "password=",
-      "NOTE="
-    ]
-  }]
 }

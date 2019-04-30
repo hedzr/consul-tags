@@ -1,9 +1,13 @@
+/*
+ * Copyright © 2019 Hedzr Yeh.
+ */
+
 package consul_test
 
 import (
 	"fmt"
 	"testing"
-	//_ set "github.com/deckarep/golang-set"
+	// _ set "github.com/deckarep/golang-set"
 	"github.com/hedzr/consul-tags/objects/consul"
 )
 
@@ -99,6 +103,6 @@ func TestTags(t *testing.T) {
 			t.Fail()
 		}
 	}
-	//t.Logf("TestConsulConnection() return ERROR: %v", nil)
-	//t.Fail()
+	// t.Logf("TestConsulConnection() return ERROR: %v", nil)
+	// t.Fail()
 }
