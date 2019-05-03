@@ -12,6 +12,10 @@
 
 Here is a first release for key functionality.
 
+## v0.5.0 in preparing
+
+- new release has been testing and released soon.
+- it has been rewrote and optimized.
 
 ## Install
 
@@ -33,7 +37,7 @@ DON'T use `127.0.0.1` with dockerize release.
 > latest: master branch and based on golang:alpine
 
 
-### Go Build
+### Go Build (Need Update)
 
 clone the repo and build:
 
@@ -82,13 +86,13 @@ consul-tags -h
 
 Default consul address is `consul.ops.local:8500`, can be overridden with environment variable `CT_APP_MS_ADDR` (host:port), too. Such as:
 
-```
-CONSUL_ADDR=127.0.0.1:8500 consul-tags ms --name=consul tags ls
+```bash
+export CT_APP_MS_ADDR=localhost:8500
+consul-tags ms tags ls --name=consul
 # or
-export CONSUL_HOST=ns2.company.domain:8500
-consul-tags --help
+CT_APP_MS_ADDR=localhost:8500 consul-tags --help
 # or
-consul-tags --addr 127.0.0.1:8500 ms --name=consul tags ls 
+consul-tags ms tags ls --name=consul --addr 127.0.0.1:8500
 ```
 
 ### COMMANDS:
@@ -103,7 +107,6 @@ consul-tags --addr 127.0.0.1:8500 ms --name=consul tags ls
 
 ```
    --help, -h                          show help (default: false)
-   --init-completion value             generate completion code. Value must be 'bash' or 'zsh'
    --version, -v                       print the version (default: false)
 ```
 
@@ -112,41 +115,30 @@ consul-tags --addr 127.0.0.1:8500 ms --name=consul tags ls
 
 
 ```bash
-eval "`consul-tags --init-completion bash`"
-consul-tags --init-completion bash >> ~/.bashrc
+
 ```
 
 or put it to `/etc/bash_completion.d/`:
 
 ```bash
-cp bin/consul-tags /usr/local/bin/
-/usr/local/bin/consul-tags --init-completion bash | sudo tee /etc/bash_completion.d/consul-tags
-source /etc/bash_completion.d/consul-tags
+
 ```
 
-See also [Shell Completion](https://github.com/urfave/cli/tree/v2#shell-completion).
-
-zsh: DOC TODO
-
-Mac: DOC TODO
 
 
 ## Thanks
 
-my plan is building a suite of devops. consul operations is part of it. exception consul tags modifying operation, these codes ported in:
+my plan is building a suite of devops. consul operations is part of it.
 
-- [colebrumley/consul-kv-backup](https://github.com/colebrumley/consul-kv-backup)
 
 and some repositories are good:
 
-- https://github.com/shreyu86/consul-backup
-- https://github.com/kailunshi/consul-backup
+- [colebrumley/consul-kv-backup](https://github.com/colebrumley/consul-kv-backup)
+- <https://github.com/shreyu86/consul-backup>
+- <https://github.com/kailunshi/consul-backup>
 
 ### Third-party repos
 
-Much more and mutable, not list here. But one of them:
-
-- https://github.com/urfave/cli/tree/v2
 
 
 
