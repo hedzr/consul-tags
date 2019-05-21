@@ -9,6 +9,6 @@ import (
 )
 
 func main() {
-	impl.Main()
+	impl.Entry()
 	// logrus.Debugf("stopping server [%s]", consul_tags.APP_NAME)
 }

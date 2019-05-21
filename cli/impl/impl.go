@@ -26,7 +26,7 @@ func Main() {
 }
 
 func mainCliTpl() {
-	cmd.SetAppName(consul_tags.APP_NAME, consul_tags.Version, "CONSUL")
+	cmd.SetAppName(consul_tags.APP_NAME, consul_tags.Version, "CT")
 	// cmd.SetConfigReloader(configReloader)
 	cmd.SetRealServerStart(realStart, deregister)
 	cmd.SetPrintVersion(printVersion)

@@ -114,14 +114,12 @@ build_mod_usage () {
 	  # go mod helpers:
 	  export GO111MODULE=on
 	  export GOPROXY=https://athens.azurefd.net
-	  export GOPROXY=http://22os.com:5000
 	  export GOPATH=$(dirname $(dirname $(dirname $(dirname $CD))))
 	EOF
 }
 build_mod_run () {
 	export GO111MODULE=on
 	export GOPROXY=https://athens.azurefd.net
-	export GOPROXY=http://22os.com:5000
 	export GOPATH=$(dirname $(dirname $CD))
 }
 build_mod_test () {

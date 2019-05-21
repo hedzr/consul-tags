@@ -154,7 +154,7 @@ func Enable(rootCmd *cobra.Command) {
 
 var kvCmd = &cobra.Command{
 	Use:     "kv",
-	Aliases: []string{"KV",},
+	Aliases: []string{"KV"},
 	Short:   "K/V operations: get|put...",
 	Long:    ``,
 	Run: func(cmd *cobra.Command, args []string) {
@@ -204,7 +204,7 @@ var msCmd = &cobra.Command{
 
 var msListCmd = &cobra.Command{
 	Use:     "list",
-	Aliases: []string{"ls",},
+	Aliases: []string{"ls"},
 	Short:   "List microservices",
 	Long:    ``,
 	Run: func(cmd *cobra.Command, args []string) {
@@ -216,7 +216,7 @@ var msListCmd = &cobra.Command{
 
 var msTagsCmd = &cobra.Command{
 	Use:     "tags",
-	Aliases: []string{"tag",},
+	Aliases: []string{"tag"},
 	Short:   "Tags operations: get|put...",
 	Long:    ``,
 	Run: func(cmd *cobra.Command, args []string) {
@@ -262,7 +262,7 @@ var msTagsToggleCmd = &cobra.Command{
 
 var tmplCmd = &cobra.Command{
 	Use:     "tmpl",
-	Aliases: []string{"tmp",},
+	Aliases: []string{"tmp"},
 	Short:   "Template operations: get|put...",
 	Long:    ``,
 	Run: func(cmd *cobra.Command, args []string) {
