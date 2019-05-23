@@ -6,11 +6,10 @@ package consul
 
 import (
 	"fmt"
+	"github.com/hashicorp/consul/api"
 	"github.com/sirupsen/logrus"
 	"strings"
 	"time"
-
-	"github.com/hashicorp/consul/api"
 )
 
 type testFn func() (bool, error)

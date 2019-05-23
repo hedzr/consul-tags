@@ -12,10 +12,21 @@
 
 Here is a first release for key functionality.
 
-## v0.5.0 in preparing
+
+
+## News
+
+### v0.5.1 in preparing
 
 - new release has been testing and released soon.
 - it has been rewrote and optimized.
+
+### v0.5.0 is a pre-release
+
+- rewrote by [`cmdr`](https://github.com/hedzr/cmdr)
+- pre-released for v0.5.1 (final)
+
+
 
 ## Install
 
@@ -63,9 +74,13 @@ go get -u github.com/hedzr/consul-tags/objects/consul
 # use the local consul demo instance as default addrress, see also `--addr` in `consul-tags ms --help`
 export CT_APP_MS_ADDR=localhost:8500
 
+# list services
+consul-tags ms ls
+
 # list tags
 consul-tags ms --name test-redis tags ls
 consul-tags ms tags ls --name test-redis
+
 # modify tags
 consul-tags ms tags modify --name test-redis tags --add a,c,e
 consul-tags ms tags mod --name test-redis --add a --add c --add e
@@ -112,7 +127,7 @@ consul-tags ms tags ls --name=consul --addr 127.0.0.1:8500
 
 ## Shell completion
 
-
+TODO
 
 ```bash
 

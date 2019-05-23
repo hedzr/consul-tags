@@ -5,19 +5,24 @@
 package consul
 
 import (
+	"errors"
 	"fmt"
 	"github.com/hashicorp/consul/api"
-	"github.com/pkg/errors"
+	"github.com/hedzr/cmdr"
 	"github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 	"strconv"
 	"strings"
 )
 
-func TagsList() error {
+const (
+	MS_PREFIX   = "app.ms"
+	TAGS_PREFIX = "app.ms.tags"
+)
+
+func TagsList() (err error) {
 	registrar := getRegistrar()
-	listServiceTags(registrar)
-	return nil
+	err = listServiceTags(registrar)
+	return
 }
 
 func TagsToggle() error {
@@ -31,7 +36,7 @@ func Tags() error {
 
 	if true {
 		cc := GetConsulApiEntryPoint(registrar)
-		logrus.Debugf("GetConsulApiEntryPoint (via %s): %v\n", viper.GetString("app.ms.addr"), cc)
+		logrus.Debugf("GetConsulApiEntryPoint (via %s): %v\n", cmdr.GetStringP(TAGS_PREFIX, "addr"), cc)
 
 		// for i, n := range viper.GetFlagNames() {
 		// 	logrus.Debugf("    - flag name %d: %s, value: %v\n", i, n, viper.Get(n))
@@ -42,12 +47,12 @@ func Tags() error {
 }
 
 func listServiceTags(registrar *Registrar) (err error) {
-	name := viper.GetString("app.ms.name")
+	name := cmdr.GetStringP(MS_PREFIX, "name")
 	if name != "" {
 		listServiceTagsByName(registrar, name)
 		return
 	}
-	id := viper.GetString("app.ms.id")
+	id := cmdr.GetStringP(MS_PREFIX, "id")
 	if id != "" {
 		listServiceTagsByID(registrar, id)
 		return
@@ -57,7 +62,7 @@ func listServiceTags(registrar *Registrar) (err error) {
 }
 
 func listServiceTagsByName(registrar *Registrar, serviceName string) {
-	logrus.Debugf("List the tags of service '%s' at '%s'...", serviceName, viper.GetString("app.ms.addr"))
+	logrus.Debugf("List the tags of service '%s' at '%s'...", serviceName, cmdr.GetStringP(TAGS_PREFIX, "addr"))
 
 	WaitForResult(func() (bool, error) {
 		catalogServices, err := QueryService(serviceName, registrar.FirstClient.Catalog())
@@ -107,11 +112,11 @@ func listServiceTagsByID(registrar *Registrar, id string) {
 }
 
 func modifyServiceTags(registrar *Registrar) error {
-	name := viper.GetString("app.ms.name")
+	name := cmdr.GetStringP(MS_PREFIX, "name")
 	if name != "" {
 		return modifyServiceTagsByName(registrar, name)
 	}
-	id := viper.GetString("app.ms.id")
+	id := cmdr.GetStringP(MS_PREFIX, "id")
 	if id != "" {
 		return modifyServiceTagsByID(registrar, id)
 	}
@@ -123,6 +128,14 @@ func modifyServiceTagsByName(registrar *Registrar, serviceName string) (err erro
 
 	var (
 		catalogServices []*api.CatalogService
+		bothMode        = cmdr.GetBoolP(TAGS_PREFIX, "modify.both")
+		metaMode        = cmdr.GetBoolP(TAGS_PREFIX, "modify.meta")
+		plainMode       = cmdr.GetBoolP(TAGS_PREFIX, "modify.plain")
+		stringMode      = cmdr.GetBoolP(TAGS_PREFIX, "modify.string")
+		addList         = cmdr.GetStringSliceP(TAGS_PREFIX, "modify.add")
+		rmList          = cmdr.GetStringSliceP(TAGS_PREFIX, "modify.rm")
+		delim           = cmdr.GetStringP(TAGS_PREFIX, "modify.delim")
+		clearFlag       = cmdr.GetBoolP(TAGS_PREFIX, "modify.clear")
 	)
 
 	catalogServices, err = QueryService(serviceName, registrar.FirstClient.Catalog())
@@ -130,9 +143,6 @@ func modifyServiceTagsByName(registrar *Registrar, serviceName string) (err erro
 		logrus.Fatalf("Error: %v", err)
 		return
 	}
-
-	bothMode := viper.GetBool("app.ms.tags.both-mode")
-	metaMode := viper.GetBool("app.ms.tags.meta-mode")
 
 	// registrarId, registrarAddr, registrarPort := consulapi[0].ServiceID, consulapi[0].Address, consulapi[0].ServicePort
 	// fmt.Printf("    Using '%catalogService', %catalogService:%d\n", userServices[0].ServiceID, userServices[0].Address, userServices[0].ServicePort)
@@ -149,13 +159,7 @@ func modifyServiceTagsByName(registrar *Registrar, serviceName string) (err erro
 
 			logrus.Debugf("    %s: tags: %v", catalogService.ServiceID, catalogService.ServiceTags)
 
-			tags := ModifyTags(catalogService.ServiceTags,
-				viper.GetStringSlice("app.ms.tags.add-list"),
-				viper.GetStringSlice("app.ms.tags.rm-list"),
-				viper.GetString("app.ms.tags.delim"),
-				viper.GetBool("app.ms.tags.clear"),
-				viper.GetBool("app.ms.tags.plain-mode"),
-				viper.GetBool("app.ms.tags.string-mode"))
+			tags := ModifyTags(catalogService.ServiceTags, addList, rmList, delim, clearFlag, plainMode, stringMode)
 
 			if err = client.Agent().ServiceRegister(&api.AgentServiceRegistration{
 				ID:                catalogService.ServiceID,
@@ -186,13 +190,7 @@ func modifyServiceTagsByName(registrar *Registrar, serviceName string) (err erro
 
 			logrus.Debugf("    %s: meta: %v", catalogService.ServiceID, catalogService.NodeMeta)
 
-			ModifyNodeMeta(catalogService.NodeMeta,
-				viper.GetStringSlice("app.ms.tags.add-list"),
-				viper.GetStringSlice("app.ms.tags.rm-list"),
-				viper.GetString("app.ms.tags.delim"),
-				viper.GetBool("app.ms.tags.clear"),
-				false, // viper.GetBool("app.ms.tags.plain-mode"),
-				viper.GetBool("app.ms.tags.string-mode"))
+			ModifyNodeMeta(catalogService.NodeMeta, addList, rmList, delim, clearFlag, false, stringMode)
 
 			logrus.Debugf("    %s: meta: %v, modified.", catalogService.ServiceID, catalogService.NodeMeta)
 
@@ -242,8 +240,16 @@ func modifyServiceTagsByID(registrar *Registrar, id string) (err error) {
 	logrus.Debugf("Modifying the tags of service by id '%s'...", id)
 
 	var (
-		as0, sNew *api.AgentService
-		s         *api.CatalogService
+		as0, sNew  *api.AgentService
+		s          *api.CatalogService
+		addList    = cmdr.GetStringSliceP(TAGS_PREFIX, "modify.add")
+		rmList     = cmdr.GetStringSliceP(TAGS_PREFIX, "modify.rm")
+		delim      = cmdr.GetStringP(TAGS_PREFIX, "modify.delim")
+		clearFlag  = cmdr.GetBoolP(TAGS_PREFIX, "modify.clear")
+		plainMode  = cmdr.GetBoolP(TAGS_PREFIX, "modify.plain")
+		stringMode = cmdr.GetBoolP(TAGS_PREFIX, "modify.string")
+		// bothMode   = cmdr.GetBoolP(TAGS_PREFIX, "modify.both")
+		// metaMode   = cmdr.GetBoolP(TAGS_PREFIX, "modify.meta")
 	)
 
 	as0, err = QueryServiceByID(id, registrar.FirstClient)
@@ -266,13 +272,7 @@ func modifyServiceTagsByID(registrar *Registrar, id string) (err error) {
 	client := getClient(as.Address, as.Port)
 	agentService := cn.Services[id]
 
-	tags := ModifyTags(s.ServiceTags,
-		viper.GetStringSlice("app.ms.tags.add-list"),
-		viper.GetStringSlice("app.ms.tags.rm-list"),
-		viper.GetString("app.ms.tags.delim"),
-		viper.GetBool("app.ms.tags.clear"),
-		viper.GetBool("app.ms.tags.plain-mode"),
-		viper.GetBool("app.ms.tags.string-mode"))
+	tags := ModifyTags(s.ServiceTags, addList, rmList, delim, clearFlag, plainMode, stringMode)
 
 	// for _, t = range tags {
 	// 	logrus.Debugf("    *** Tags: %v", tags)
@@ -309,12 +309,12 @@ func modifyServiceTagsByID(registrar *Registrar, id string) (err error) {
 }
 
 func toggleServiceTags(registrar *Registrar) {
-	name := viper.GetString("app.ms.name")
+	name := cmdr.GetStringP(MS_PREFIX, "name")
 	if name != "" {
 		toggleServiceTagsByName(registrar, name)
 		return
 	}
-	id := viper.GetString("app.ms.id")
+	id := cmdr.GetStringP(MS_PREFIX, "id")
 	if id != "" {
 		logrus.Fatalf("toggle tags can be applied with --name but --id")
 		return
@@ -322,12 +322,26 @@ func toggleServiceTags(registrar *Registrar) {
 }
 
 func toggleServiceTagsByName(registrar *Registrar, name string) {
+	var (
+		theServices []*api.CatalogService
+		err         error
+		masterTag   = cmdr.GetStringSliceP(TAGS_PREFIX, "toggle.set")
+		slaveTag    = cmdr.GetStringSliceP(TAGS_PREFIX, "toggle.ueset")
+		addresses   = cmdr.GetStringP(TAGS_PREFIX, "toggle.address")
+		delim       = cmdr.GetStringP(TAGS_PREFIX, "toogle.delim")
+		clearFlag   = cmdr.GetBoolP(TAGS_PREFIX, "toggle.clear")
+		plainMode   = cmdr.GetBoolP(TAGS_PREFIX, "modify.plain")
+		stringMode  = cmdr.GetBoolP(TAGS_PREFIX, "modify.string")
+		// bothMode   = cmdr.GetBoolP(TAGS_PREFIX, "modify.both")
+		// metaMode   = cmdr.GetBoolP(TAGS_PREFIX, "modify.meta")
+	)
+
 	logrus.Debugf("Toggle the tags of service '%s'...", name)
-	theServices, err := QueryService(name, registrar.FirstClient.Catalog())
+	theServices, err = QueryService(name, registrar.FirstClient.Catalog())
 	if err != nil {
 		logrus.Fatalf("Error: %v", err)
 	} else {
-		newMaster := strings.Split(viper.GetString("app.ms.tags.toggle.address"), ":")
+		newMaster := strings.Split(addresses, ":")
 		newMasterPort := 0
 		if len(newMaster) > 1 {
 			newMasterPort, err = strconv.Atoi(newMaster[1])
@@ -336,8 +350,6 @@ func toggleServiceTagsByName(registrar *Registrar, name string) {
 				return
 			}
 		}
-		masterTag := viper.GetStringSlice("app.ms.tags.toggle.set-list")
-		slaveTag := viper.GetStringSlice("app.ms.tags.toggle.reset-list")
 		if len(newMaster) == 0 {
 			logrus.Fatalf("--address to specify the master ip:port, it's NOT optional.")
 			return
@@ -363,17 +375,9 @@ func toggleServiceTagsByName(registrar *Registrar, name string) {
 			}
 			tags := s.ServiceTags
 			if matched {
-				tags = ModifyTags(tags, masterTag, slaveTag,
-					viper.GetString("app.ms.tags.delim"),
-					viper.GetBool("app.ms.tags.clear"),
-					viper.GetBool("app.ms.tags.plain-mode"),
-					viper.GetBool("app.ms.tags.string-mode"))
+				tags = ModifyTags(tags, masterTag, slaveTag, delim, clearFlag, plainMode, stringMode)
 			} else {
-				tags = ModifyTags(tags, slaveTag, masterTag,
-					viper.GetString("app.ms.tags.delim"),
-					viper.GetBool("app.ms.tags.clear"),
-					viper.GetBool("app.ms.tags.plain-mode"),
-					viper.GetBool("app.ms.tags.string-mode"))
+				tags = ModifyTags(tags, slaveTag, masterTag, delim, clearFlag, plainMode, stringMode)
 			}
 			// }
 
@@ -438,7 +442,11 @@ func toggleServiceTagsByName(registrar *Registrar, name string) {
 }
 
 func getRegistrar() *Registrar {
-	return getRegistrarImpl(viper.GetString("app.ms.addr"), viper.GetString("app.ms.scheme"))
+	addr := cmdr.GetStringP(TAGS_PREFIX, "addr")
+	if !strings.Contains(addr, ":") {
+		addr = fmt.Sprintf("%v:%v", addr, cmdr.GetIntP(TAGS_PREFIX, "port"))
+	}
+	return getRegistrarImpl(addr, cmdr.GetStringP(TAGS_PREFIX, "scheme"))
 }
 
 func getRegistrarImpl(addr, scheme string) *Registrar {
@@ -455,7 +463,7 @@ func getRegistrarImpl(addr, scheme string) *Registrar {
 }
 
 func getClient(host string, port int) *api.Client {
-	return getClientImpl(host, port, viper.GetString("app.ms.scheme"))
+	return getClientImpl(host, port, cmdr.GetStringP(TAGS_PREFIX, "scheme"))
 }
 
 func getClientImpl(host string, port int, scheme string) *api.Client {

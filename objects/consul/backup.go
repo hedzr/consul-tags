@@ -10,8 +10,8 @@ import (
 	"errors"
 	"fmt"
 	"github.com/hashicorp/consul/api"
+	"github.com/hedzr/cmdr"
 	"github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"path"
@@ -23,16 +23,17 @@ func Backup() (err error) {
 		client       *api.Client
 		backupResult *kvJSON
 		output       string
+		prefix       = "app.kv"
 	)
 
-	output = viper.GetString("app.kv.output")
+	output = cmdr.GetStringP(prefix, "backup.output")
 	if len(output) == 0 {
 		logrus.Fatal("ERROR: need -o output-file")
 		return errors.New("Need -o output-file")
 	}
 
 	// Get KV client
-	client, backupResult, err = getConnectionFromFlags()
+	client, backupResult, err = getConnectionFromFlags(prefix)
 	if err != nil {
 		return
 	}
@@ -41,7 +42,7 @@ func Backup() (err error) {
 	kv := client.KV()
 
 	// Dump all
-	pairs, _, err := kv.List(viper.GetString("app.ms.prefix"), &api.QueryOptions{})
+	pairs, _, err := kv.List(cmdr.GetStringP(prefix, "prefix"), &api.QueryOptions{})
 	if err != nil {
 		logrus.Fatalf("ERROR: %v", err)
 		return

@@ -144,6 +144,7 @@ build_deps_usage () {
 	  start		start deps runtime instances
 	  stop		stop deps runtime instances
 	  reset		remove the runtime instances of containers completely
+	  consul  run small consul for testing.
 	EOF
 }
 build_deps_run () {
@@ -166,6 +167,21 @@ build_deps_stop () {
 build_deps_reset () {
 	pushd ci/deps >/dev/null
 	docker-compose rm -f
+	popd >/dev/null
+}
+build_deps_consul () {
+	pushd ci >/dev/null
+	
+	PROJ_DIR=$CD
+	[ -d /tmp/consul ] && rm -rf /tmp/consul || mkdir /tmp/consul
+	
+	# consul agent -data-dir /tmp/consul -server -bootstrap &
+	
+	echo "USING PROJ_DIR = $PROJ_DIR"
+	echo "USING CONSUL CONFIG DIR: $PROJ_DIR/ci/consul.d"
+	echo ""
+	consul agent -config-dir $PROJ_DIR/ci/consul.d -data-dir /tmp/consul -server
+	
 	popd >/dev/null
 }
 

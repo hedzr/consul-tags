@@ -10,12 +10,15 @@ import (
 )
 
 func Pre(cmd *cmdr.Command, args []string) (err error) {
-	logrus.Info("app starting...")
+	if cmdr.GetDebugMode() {
+		logrus.SetLevel(logrus.DebugLevel)
+	}
+	logrus.Debug("app starting...")
 	return
 }
 
 func Post(cmd *cmdr.Command, args []string) {
-	logrus.Info("app stopping...")
-	logrus.Info("app stopped.")
+	logrus.Debug("app stopping...")
+	logrus.Debug("app stopped.")
 }
 

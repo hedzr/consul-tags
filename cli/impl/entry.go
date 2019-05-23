@@ -11,13 +11,14 @@ import (
 
 func Entry() {
 
-	logrus.SetLevel(logrus.DebugLevel)
+	// logrus.SetLevel(logrus.DebugLevel)
 	logrus.SetFormatter(&logrus.TextFormatter{ForceColors: true,})
 
-	cmdr.EnableVersionCommands = true
-	cmdr.EnableVerboseCommands = true
-	cmdr.EnableHelpCommands = true
-	cmdr.EnableGenerateCommands = true
+	// cmdr.EnableVersionCommands = true
+	// cmdr.EnableVerboseCommands = true
+	// cmdr.EnableHelpCommands = true
+	// cmdr.EnableGenerateCommands = true
+	cmdr.EnvPrefix = []string{"CT",}
 
 	if err := cmdr.Exec(rootCmd); err != nil {
 		logrus.Errorf("Error: %v", err)

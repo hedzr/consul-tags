@@ -9,8 +9,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/hashicorp/consul/api"
+	"github.com/hedzr/cmdr"
 	"github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
@@ -22,9 +22,10 @@ func Restore() (err error) {
 		client *api.Client
 		bkup   *kvJSON
 		v      string
+		prefix = "app.kv"
 	)
 	// Get KV client
-	client, bkup, err = getConnectionFromFlags()
+	client, bkup, err = getConnectionFromFlags(prefix)
 	if err != nil {
 		return
 	}
@@ -32,9 +33,9 @@ func Restore() (err error) {
 	kv := client.KV()
 
 	// Get backup JSON from file
-	bkup, err = readBackupFile(viper.GetString("app.kv.input"))
+	bkup, err = readBackupFile(cmdr.GetStringP(prefix, "input"))
 	if err != nil {
-		return fmt.Errorf("Error getting data: %v", err)
+		return fmt.Errorf("error getting data: %v", err)
 	}
 
 	// restore file contents
@@ -43,13 +44,13 @@ func Restore() (err error) {
 		case "base64":
 			vd, err := base64.StdEncoding.DecodeString(ve.Str)
 			if err != nil {
-				return fmt.Errorf("Error decoding the value of key '%s': %v", k, err)
+				return fmt.Errorf("error decoding the value of key '%s': %v", k, err)
 			}
 			v = string(vd)
 		case "utf8", "":
 			v = ve.Str
 		default:
-			return fmt.Errorf("Unknown encoding '%v' for key '%s'", ve.Encoding, k)
+			return fmt.Errorf("unknown encoding '%v' for key '%s'", ve.Encoding, k)
 		}
 
 		logrus.Debugf("Restoring key '%s'", k)
@@ -57,7 +58,7 @@ func Restore() (err error) {
 			Key:   k,
 			Value: []byte(v),
 		}, &api.WriteOptions{}); err != nil {
-			return fmt.Errorf("Error writing key %s: %v", k, err)
+			return fmt.Errorf("error writing key %s: %v", k, err)
 		}
 	}
 	return nil
