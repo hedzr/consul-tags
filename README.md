@@ -1,7 +1,11 @@
 # Consul Service Tags Modifier
 
-[![GitHub version](https://badge.fury.io/gh/hedzr%2Fconsul-tags.svg)](https://badge.fury.io/gh/hedzr%2Fconsul-tags)
+![GitHub tag (latest SemVer)](https://img.shields.io/github/tag/hedzr/consul-tags.svg?label=release)
 [![Build Status](https://travis-ci.org/hedzr/consul-tags.svg?branch=master)](https://travis-ci.org/hedzr/consul-tags)
+
+<!-- [![GitHub version](https://badge.fury.io/gh/hedzr%2Fconsul-tags.svg)](https://badge.fury.io/gh/hedzr%2Fconsul-tags)
+-->
+
 [![license](https://img.shields.io/github/license/hedzr/consul-tags.svg)]()
 [![Docker Automated buil](https://img.shields.io/docker/automated/hedzr/consul-tags.svg)]()
 [![Docker Pulls](https://img.shields.io/docker/pulls/hedzr/consul-tags.svg)]()
