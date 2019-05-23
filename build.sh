@@ -18,6 +18,14 @@ build_darwin () {
 	build_one amd64 darwin dar $*
 }
 
+build_ci() {
+  go mod download
+  build_all
+	ls -la ./bin/
+	for f in bin/*; do gzip $f; done 
+	ls -la ./bin/
+}
+
 build_all () {
 	for ARCH in amd64; do
 		for OS in darwin linux windows; do

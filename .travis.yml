@@ -4,17 +4,18 @@ go:
 install:
 - go get -d -v ./...
 script:
-- ci/scripts/build --ci
+# - ci/scripts/build --ci
+  - ./build.sh ci
 deploy:
   provider: releases
   api_key:
     secure: jO1MJl6LgYJACZB9aLCPzSRHVOEflh3owY8bKwrUZ3vUIshCaL4j2k6FQi8q85KJaIlE1dxVBLXjQU6HQL9XMmONqKmcwtnowdlNakCVslJ69oWhoISgjPS8kMSExPiQNifJskkq84AdnpsOcOqIP6QHa4XmjHGeupT4Sof+v5H0xTjs95f7SDgmqXKuBOQUHZT4L1E2tws7s4zjujPQ1mC7qKsZIZzpyXdoBSdaepAI//Fu0U3yfnvhCHdGK+k7RyLtZb2Qn1fM5InIXXM2feGEQhA6xSojl06iErsK5zwoiCSvrfeBh4d0wDyzJOZd/A8bilrAkC8ppBG3Sr7Dn7yXszBRC60F7Kv4QfEpsQsnTmkaqFHGCCeA8Y1gsARDh61BZHosEPUOgtXSSft9xKpGGfZah4sWvD+OSch6qdsh65Ib863fBzMvMFAOWU6EiqlNqI71bpHlQFKEFPzVZTHKpyROwPi+7Erft//j2RND/LmnQupM/cEBTRgaxMtqOCB9AA/UdnppKfVxP/eyDtYamOcAFlx+1hVAsHWoXRYwwflepURMwlqZMMiSw45gd+yRAdUmDB67hoD409gq4J2Dt+gzMd5VkHNlec8VWD+IYU0Nt72M7J+COPabFYMOkaFRvz4c8iuX6tThmTd28ZOwAg0x1fcOpGi+JGqqInI=
   file:
-    - bin/consul_tags_darwin-amd64.gz
-    - bin/consul_tags_linux-386.gz
-    - bin/consul_tags_linux-amd64.gz
-    - bin/consul_tags_windows-386.gz
-    - bin/consul_tags_windows-amd64.gz
+    - bin/consul-tags-darwin-amd64.gz
+    - bin/consul-tags-linux-386.gz
+    - bin/consul-tags-linux-amd64.gz
+    - bin/consul-tags-windows-386.gz
+    - bin/consul-tags-windows-amd64.gz
   skip_cleanup: true
   on:
     tags: true
