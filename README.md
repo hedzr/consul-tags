@@ -37,7 +37,7 @@ Here is a first release for key functionality.
 
 Download binary from [Release](../../releases/latest) page.
 
-### Docker Hub
+### Docker Hub (paused since v0.5.x)
 
 ```bash
 docker pull hedzr/consul-tags
@@ -51,18 +51,20 @@ DON'T use `127.0.0.1` with dockerize release.
 > latest: master branch and based on golang:alpine
 
 
-### Go Build (Need Update)
+### Go Build
 
 clone the repo and build:
 
 ```bash
-go build -o consul-tags github.com/hedzr/consul-tags
+cd $GOPATH/github.com/hedzr/consul-tags
+go mod download
+go build -o consul-tags ./cli/main.go 
 ```
 
 mixin:
 
 ```bash
-go get -u github.com/hedzr/consul-tags/objects/consul
+go get -u github.com/hedzr/consul-tags
 ```
 
 
