@@ -72,6 +72,10 @@ app_version_int () {
 	grep -E "VersionInt[ \t]+=[ \t]+" doc.go|grep -Eo "[0-9x]+"
 }
 
+build_fmt () {
+	gofmt -l -s -w .
+}
+
 
 
 
