@@ -19,7 +19,7 @@ Here is a first release for key functionality.
 
 ## News
 
-### v0.5.1 in preparing
+### v0.5.1
 
 - new release has been testing and released soon.
 - it has been rewrote and optimized.
