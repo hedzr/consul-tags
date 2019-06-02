@@ -1,6 +1,6 @@
 # Consul Service Tags Modifier
 
-![GitHub tag (latest SemVer)](https://img.shields.io/github/tag/hedzr/consul-tags.svg?label=release)
+[![GitHub tag (latest SemVer)](https://img.shields.io/github/tag/hedzr/consul-tags.svg?label=release)](https://github.com/hedzr/consul-tags/releases)
 [![Build Status](https://travis-ci.org/hedzr/consul-tags.svg?branch=master)](https://travis-ci.org/hedzr/consul-tags)
 [![license](https://img.shields.io/github/license/hedzr/consul-tags.svg)]()
 [![Docker Automated buil](https://img.shields.io/docker/automated/hedzr/consul-tags.svg)]()
