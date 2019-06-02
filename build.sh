@@ -72,9 +72,49 @@ app_version_int () {
 	grep -E "VersionInt[ \t]+=[ \t]+" doc.go|grep -Eo "[0-9x]+"
 }
 
+
+
+
+build_gofmt () {
+	gofmt -l -s -w .
+}
+
 build_fmt () {
 	gofmt -l -s -w .
 }
+
+build_golint() {
+  golint ./...
+}
+
+build_lint() {
+  golint ./...
+}
+
+build_gotest() {
+  go test ./...
+}
+
+build_test() {
+  go test ./...
+}
+
+build_gocov() {
+  go test -race -covermode=atomic -coverprofile cover.out && \
+  go tool cover -html=cover.out -o cover.html && \
+  open cover.html
+}
+
+build_gocov_codecov() {
+  # https://codecov.io/gh/hedzr/cmdr
+  go test -race -coverprofile=coverage.txt -covermode=atomic
+  bash <(curl -s https://codecov.io/bash) -t $CODECOV_TOKEN
+}
+
+build_gocov_codecov_open() {
+  open https://codecov.io/gh/hedzr/cmdr
+}
+
 
 
 
