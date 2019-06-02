@@ -21,4 +21,3 @@ func Post(cmd *cmdr.Command, args []string) {
 	logrus.Debug("app stopping...")
 	logrus.Debug("app stopped.")
 }
-

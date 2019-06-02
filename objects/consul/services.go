@@ -26,7 +26,7 @@ func listServices(registrar *Registrar) error {
 			return false, err
 		}
 
-		for k, v:=range vm {
+		for k, v := range vm {
 			fmt.Printf("%31s: %v\n", k, v)
 		}
 		return true, nil
