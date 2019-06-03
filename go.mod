@@ -14,7 +14,7 @@ require (
 	github.com/hashicorp/go-sockaddr v1.0.2 // indirect
 	github.com/hashicorp/golang-lru v0.5.1 // indirect
 	github.com/hashicorp/serf v0.8.2 // indirect
-	github.com/hedzr/cmdr v0.2.19
+	github.com/hedzr/cmdr v0.2.21
 	// github.com/hedzr/cmdr v0.0.0
 	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
 	github.com/kr/pretty v0.1.0 // indirect
