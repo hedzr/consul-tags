@@ -79,10 +79,10 @@ func buildCmds() (rootCmd *cmdr.RootCommand) {
 		Description("all services", ``).
 		DefaultValue(false, "")
 
-		// ms list
+	// ms list
 
-		/* msListCmd := */
-	kvCmd.NewSubCommand().
+	/* msListCmd := */
+	msCmd.NewSubCommand().
 		Titles("ls", "list", "l", "lst", "dir").
 		Description("list services.", ``).
 		Action(msList)
