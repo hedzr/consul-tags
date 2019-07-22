@@ -47,6 +47,7 @@ github.com/hashicorp/serf v0.8.2/go.mod h1:6hOLApaqBFA1NXqRQAsxw9QxuDEvNxSQRwA/J
 github.com/hedzr/cmdr v1.0.0 h1:+6vpCICzKGsRvqY8GaGcFmv33Sd+wMag1YRUEFt76J0=
 github.com/hedzr/cmdr v1.0.0/go.mod h1:zh4rghqfT1g+uA+U8aD/69wPKJgZg0Z4VbAl/wcYyiQ=
 github.com/hedzr/cmdr v1.0.1/go.mod h1:zh4rghqfT1g+uA+U8aD/69wPKJgZg0Z4VbAl/wcYyiQ=
+github.com/hedzr/cmdr v1.0.3/go.mod h1:zh4rghqfT1g+uA+U8aD/69wPKJgZg0Z4VbAl/wcYyiQ=
 github.com/kardianos/osext v0.0.0-20190222173326-2bc1f35cddc0/go.mod h1:1NbS8ALrpOvjt0rHPNLyCIeMtbizbir8U//inJ+zuB8=
 github.com/konsorten/go-windows-terminal-sequences v1.0.1 h1:mweAR1A6xJ3oS2pRaGiHgQ4OO8tzTaLawm8vnODuwDk=
 github.com/konsorten/go-windows-terminal-sequences v1.0.1/go.mod h1:T0+1ngSBFLxvqU3pZ+m/2kptfBszLMUkC4ZK/EgS/cQ=
