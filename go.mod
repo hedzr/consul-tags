@@ -10,7 +10,7 @@ go 1.12
 require (
 	github.com/hashicorp/consul/api v1.1.0
 	github.com/hashicorp/go-rootcerts v1.0.1 // indirect
-	github.com/hedzr/cmdr v1.1.3
+	github.com/hedzr/cmdr v1.1.5
 	github.com/sirupsen/logrus v1.4.2
 	gopkg.in/yaml.v2 v2.2.2
 )
