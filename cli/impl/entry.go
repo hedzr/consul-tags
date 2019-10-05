@@ -8,21 +8,19 @@ import (
 	"github.com/hedzr/cmdr"
 	"github.com/hedzr/consul-tags"
 	"github.com/hedzr/consul-tags/objects/consul"
+	"github.com/hedzr/logex"
 	"github.com/sirupsen/logrus"
 )
 
 func Entry() {
 
 	// logrus.SetLevel(logrus.DebugLevel)
-	logrus.SetFormatter(&logrus.TextFormatter{ForceColors: true})
+	// logrus.SetFormatter(&logrus.TextFormatter{ForceColors: true})
+	logex.Enable()
 
-	// cmdr.EnableVersionCommands = true
-	// cmdr.EnableVerboseCommands = true
-	// cmdr.EnableHelpCommands = true
-	// cmdr.EnableGenerateCommands = true
-	cmdr.EnvPrefix = []string{"CT"}
-
-	if err := cmdr.Exec(buildCmds()); err != nil {
+	if err := cmdr.Exec(buildCmds(),
+		cmdr.WithEnvPrefix("CT"),
+		); err != nil {
 		logrus.Errorf("Error: %v", err)
 	}
 
