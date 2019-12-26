@@ -5,10 +5,10 @@
 package consul
 
 import (
-	"errors"
 	"fmt"
 	"github.com/hashicorp/consul/api"
 	"github.com/hedzr/cmdr"
+	"github.com/hedzr/errors"
 	"github.com/sirupsen/logrus"
 	"strconv"
 	"strings"

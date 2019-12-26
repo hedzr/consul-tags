@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"github.com/hashicorp/consul/api"
 	"github.com/hedzr/consul-tags/util"
+	"github.com/hedzr/logex"
 	"github.com/sirupsen/logrus"
 	_ "log"
 	"strconv"
@@ -16,6 +17,8 @@ import (
 )
 
 func TestQueryConsulService(t *testing.T) {
+	defer logex.CaptureLog(t).Release()
+
 	registrar := getTestRegistrar()
 	// client, err := api.NewClient(conf)
 	// if err != nil {

@@ -7,10 +7,10 @@ package consul
 import (
 	"encoding/base64"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/hashicorp/consul/api"
 	"github.com/hedzr/cmdr"
+	"github.com/hedzr/errors"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
