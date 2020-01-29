@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"github.com/hashicorp/consul/api"
 	"github.com/hedzr/cmdr"
-	"github.com/hedzr/errors"
 	"github.com/sirupsen/logrus"
+	"gopkg.in/hedzr/errors.v2"
 	"strconv"
 	"strings"
 )
