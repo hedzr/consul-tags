@@ -5,8 +5,8 @@
 package consul
 
 import (
+	"github.com/hedzr/cmdr"
 	"github.com/hedzr/consul-tags/util"
-	"github.com/sirupsen/logrus"
 	"strings"
 )
 
@@ -16,7 +16,7 @@ func ModifyTags(tags, addTags, removeTags []string, delim string, hasClear, isPl
 	}
 
 	if !isPlainMode {
-		logrus.Debug("    --- in ext mode")
+		cmdr.Logger.Debugf("    --- in ext mode")
 		list := make([]string, 0)
 		for _, t := range removeTags {
 			if isString {
@@ -28,7 +28,7 @@ func ModifyTags(tags, addTags, removeTags []string, delim string, hasClear, isPl
 			}
 		}
 		for _, t := range list {
-			logrus.Debugf("    --- slice: erasing %s", t)
+			cmdr.Logger.Debugf("    --- slice: erasing %s", t)
 			for {
 				erased := false
 				for i, v := range tags {
@@ -36,7 +36,7 @@ func ModifyTags(tags, addTags, removeTags []string, delim string, hasClear, isPl
 					ta := strings.Split(t, delim)
 					if len(ta) > 0 && strings.EqualFold(va[0], ta[0]) {
 						tags = util.SliceEraseByIndex(tags, i)
-						logrus.Debugf("      - slice: erased '%s%s...'", va[0], delim)
+						cmdr.Logger.Debugf("      - slice: erased '%s%s...'", va[0], delim)
 						erased = true
 						break
 					}
@@ -57,14 +57,14 @@ func ModifyTags(tags, addTags, removeTags []string, delim string, hasClear, isPl
 			}
 		}
 		for _, t := range list {
-			logrus.Debugf("    --- slice: appending %s", t)
+			cmdr.Logger.Debugf("    --- slice: appending %s", t)
 			matched := false
 			for i, v := range tags {
 				va := strings.Split(v, delim)
 				ta := strings.Split(t, delim)
 				if len(va) > 0 && strings.EqualFold(strings.TrimSpace(va[0]), strings.TrimSpace(ta[0])) {
 					tags[i] = t
-					logrus.Debugf("      - slice: appended '%s%s...'", va[0], delim)
+					cmdr.Logger.Debugf("      - slice: appended '%s%s...'", va[0], delim)
 					matched = true
 				}
 			}
@@ -88,11 +88,11 @@ func ModifyTags(tags, addTags, removeTags []string, delim string, hasClear, isPl
 func ModifyNodeMeta(tags map[string]string, addTags, removeTags []string, delim string, hasClear, isPlainMode, isString bool) map[string]string {
 	if hasClear {
 		tags = make(map[string]string, 0)
-		logrus.Info("      - slice: cleared.")
+		cmdr.Logger.Infof("      - slice: cleared.")
 	}
 
 	if !isPlainMode {
-		logrus.Debug("    --- in ext mode")
+		cmdr.Logger.Debugf("    --- in ext mode")
 		list := make([]string, 0)
 		for _, t := range removeTags {
 			if isString {
@@ -104,13 +104,13 @@ func ModifyNodeMeta(tags map[string]string, addTags, removeTags []string, delim 
 			}
 		}
 		for _, t := range list {
-			logrus.Debugf("    --- slice: erasing %s", t)
+			cmdr.Logger.Debugf("    --- slice: erasing %s", t)
 			for {
 				ta := strings.Split(t, delim)
 				if ta[0] != "" {
 					delete(tags, ta[0])
 				}
-				logrus.Infof("      - slice: erased '%s%s...'", ta[0], delim)
+				cmdr.Logger.Infof("      - slice: erased '%s%s...'", ta[0], delim)
 			}
 		}
 		list = make([]string, 0)
@@ -124,12 +124,12 @@ func ModifyNodeMeta(tags map[string]string, addTags, removeTags []string, delim 
 			}
 		}
 		for _, t := range list {
-			logrus.Debugf("    --- slice: appending %s", t)
+			cmdr.Logger.Debugf("    --- slice: appending %s", t)
 			ta := strings.Split(t, delim)
 			tak := ta[0]
 			tav := strings.Join(ta[1:], delim)
 			tags[tak] = tav
-			logrus.Debugf("      - slice: set/appended '%s%s...'", tak, delim)
+			cmdr.Logger.Debugf("      - slice: set/appended '%s%s...'", tak, delim)
 		}
 
 	} else {

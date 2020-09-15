@@ -7,9 +7,9 @@ package consul
 import (
 	"fmt"
 	"github.com/hashicorp/consul/api"
+	"github.com/hedzr/cmdr"
 	"github.com/hedzr/consul-tags/util"
 	"github.com/hedzr/logex"
-	"github.com/sirupsen/logrus"
 	_ "log"
 	"strconv"
 	"strings"
@@ -37,7 +37,7 @@ func TestQueryConsulService(t *testing.T) {
 	fmt.Printf("Querying 'consul' services...")
 	consulService, err := QueryService("consul", registrar.FirstClient.Catalog())
 	if err != nil {
-		logrus.Fatalf("Error: %v", err)
+		cmdr.Logger.Fatalf("Error: %v", err)
 		panic(err)
 	} else {
 		// registrarId, registrarAddr, registrarPort := consulapi[0].ServiceID, consulapi[0].Address, consulapi[0].ServicePort
@@ -58,7 +58,7 @@ func TestQueryConsulapiService(t *testing.T) {
 	cc := GetConsulApiEntryPoint(registrar)
 	if cc == nil {
 		err := fmt.Errorf("Error: GetConsulApiEntryPoint() retun nil; 'consulapi' service NOT FOUND.")
-		logrus.Fatal(err)
+		cmdr.Logger.Fatalf("error: %v", err)
 		panic(err)
 	}
 	fmt.Printf("%v", cc)
@@ -84,14 +84,14 @@ func someTests(registrar *Registrar) error {
 	p := &api.KVPair{Key: KEY_WAS_SETUP, Value: []byte("---\nops\ncommon")}
 	_, err := kv.Put(p, nil)
 	if err != nil {
-		logrus.Fatalf("Error: %v", err)
+		cmdr.Logger.Fatalf("Error: %v", err)
 		return err
 	}
 
 	// Lookup the pair
 	pair, _, err := kv.Get(KEY_WAS_SETUP, nil)
 	if err != nil || !strings.Contains(util.CToGoString(pair.Value), VALUE_WAS_SETUP) {
-		logrus.Fatalf("Error: %v", err)
+		cmdr.Logger.Fatalf("Error: %v", err)
 		return err
 	}
 
@@ -114,7 +114,7 @@ func someTests(registrar *Registrar) error {
 
 		return true, nil
 	}, func(err error) {
-		logrus.Fatalf("Error: %v", err)
+		cmdr.Logger.Fatalf("Error: %v", err)
 		panic(err)
 	})
 
@@ -145,7 +145,7 @@ func someTests(registrar *Registrar) error {
 
 		return true, nil
 	}, func(err error) {
-		logrus.Fatalf("Error: %v", err)
+		cmdr.Logger.Fatalf("Error: %v", err)
 		panic(err)
 	})
 
@@ -170,7 +170,7 @@ func someTests(registrar *Registrar) error {
 
 		return true, nil
 	}, func(err error) {
-		logrus.Fatalf("Error: %v", err)
+		cmdr.Logger.Fatalf("Error: %v", err)
 		panic(err)
 	})
 
@@ -178,10 +178,10 @@ func someTests(registrar *Registrar) error {
 }
 
 func testConsulapi(registrar *Registrar) {
-	logrus.Debugf("Querying %s services...", SERVICE_CONSUL_API)
+	cmdr.Logger.Debugf("Querying %s services...", SERVICE_CONSUL_API)
 	theServices, err := QueryService(SERVICE_CONSUL_API, registrar.FirstClient.Catalog())
 	if err != nil {
-		logrus.Fatalf("Error: %v", err)
+		cmdr.Logger.Fatalf("Error: %v", err)
 	} else {
 		// registrarId, registrarAddr, registrarPort := consulapi[0].ServiceID, consulapi[0].Address, consulapi[0].ServicePort
 		// fmt.Printf("    Using '%s', %s:%d\n", userServices[0].ServiceID, userServices[0].Address, userServices[0].ServicePort)
@@ -195,10 +195,10 @@ func testConsulapi(registrar *Registrar) {
 }
 
 func testRedis(registrar *Registrar) {
-	logrus.Debugf("Querying %s services...", SERVICE_CACHE)
+	cmdr.Logger.Debugf("Querying %s services...", SERVICE_CACHE)
 	theServices, err := QueryService(SERVICE_CACHE, registrar.FirstClient.Catalog())
 	if err != nil {
-		logrus.Fatalf("Error: %v", err)
+		cmdr.Logger.Fatalf("Error: %v", err)
 	} else {
 		// registrarId, registrarAddr, registrarPort := consulapi[0].ServiceID, consulapi[0].Address, consulapi[0].ServicePort
 		// fmt.Printf("    Using '%s', %s:%d\n", userServices[0].ServiceID, userServices[0].Address, userServices[0].ServicePort)
@@ -212,10 +212,10 @@ func testRedis(registrar *Registrar) {
 }
 
 func testSqs(registrar *Registrar) {
-	logrus.Debugf("Querying %s services...", SERVICE_MQ)
+	cmdr.Logger.Debugf("Querying %s services...", SERVICE_MQ)
 	theServices, err := QueryService(SERVICE_MQ, registrar.FirstClient.Catalog())
 	if err != nil {
-		logrus.Fatalf("Error: %v", err)
+		cmdr.Logger.Fatalf("Error: %v", err)
 	} else {
 		// registrarId, registrarAddr, registrarPort := consulapi[0].ServiceID, consulapi[0].Address, consulapi[0].ServicePort
 		// fmt.Printf("    Using '%s', %s:%d\n", userServices[0].ServiceID, userServices[0].Address, userServices[0].ServicePort)
@@ -240,7 +240,7 @@ func testSqs(registrar *Registrar) {
 			// 重新载入s的等价物，才能得到新的tags集合，s.ServiceTags并不会自动更新为新集合
 			sNew, _ := QueryServiceByID(s.ServiceID, client)
 
-			logrus.Infof("    #%d. id='%s'[%s:%d], tags=%v, meta=%v, Node: %s,%s:%d\n",
+			cmdr.Logger.Infof("    #%d. id='%s'[%s:%d], tags=%v, meta=%v, Node: %s,%s:%d\n",
 				i, s.ServiceID, s.ServiceAddress, s.ServicePort,
 				sNew.Tags, s.NodeMeta, s.Node, s.Address, as.Port)
 		}
@@ -255,7 +255,7 @@ func TestConsulRedisAndSqs(t *testing.T) {
 	// }
 
 	cc := GetConsulApiEntryPoint(registrar)
-	logrus.Debugf("GetConsulApiEntryPoint (via %s:%d): %v\n", DEFAULT_CONSUL_HOST, DEFAULT_CONSUL_PORT, cc)
+	cmdr.Logger.Debugf("GetConsulApiEntryPoint (via %s:%d): %v\n", DEFAULT_CONSUL_HOST, DEFAULT_CONSUL_PORT, cc)
 	// for i, s := range cc.ServiceAddress {
 	// 	fmt.Printf("    #%d. '%s', %s:%d, %v, %v, Node: %s,%s\n", i, s.ServiceID, s.ServiceAddress, s.ServicePort, s.ServiceTags, s.NodeMeta, s.Node, s.Address)
 	// 	NodeToAgent(registrar, s.Node).Node.Address

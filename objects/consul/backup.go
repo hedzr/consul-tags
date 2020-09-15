@@ -10,7 +10,6 @@ import (
 	"fmt"
 	"github.com/hashicorp/consul/api"
 	"github.com/hedzr/cmdr"
-	"github.com/sirupsen/logrus"
 	"gopkg.in/hedzr/errors.v2"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
@@ -28,7 +27,7 @@ func Backup() (err error) {
 
 	output = cmdr.GetStringP(prefix, "backup.output")
 	if len(output) == 0 {
-		logrus.Fatal("ERROR: need -o output-file")
+		cmdr.Logger.Errorf("ERROR: need -o output-file")
 		return errors.New("Need -o output-file")
 	}
 
@@ -38,13 +37,13 @@ func Backup() (err error) {
 		return
 	}
 
-	logrus.Debugf("Connected: %v", client)
+	cmdr.Logger.Debugf("Connected: %v", client)
 	kv := client.KV()
 
 	// Dump all
 	pairs, _, err := kv.List(cmdr.GetStringP(prefix, "prefix"), &api.QueryOptions{})
 	if err != nil {
-		logrus.Fatalf("ERROR: %v", err)
+		cmdr.Logger.Fatalf("ERROR: %v", err)
 		return
 	}
 	bkup := map[string]valueEnc{}
@@ -59,7 +58,7 @@ func Backup() (err error) {
 	}
 	backupResult.Values = bkup
 
-	logrus.Debugf("Dumping to %s", output)
+	cmdr.Logger.Debugf("Dumping to %s", output)
 	// Send results to outfile (if defined) or stdout
 	dumpOutput(output, backupResult)
 
@@ -74,24 +73,24 @@ func dumpOutput(pathname string, bkup *kvJSON) {
 		case ".json":
 			outBytes, err := json.Marshal(bkup)
 			if err != nil {
-				logrus.Fatalf("Error: %v", err)
+				cmdr.Logger.Fatalf("Error: %v", err)
 			}
 			if err = ioutil.WriteFile(pathname, outBytes, 0664); err != nil {
-				logrus.Fatalf("Error: %v", err)
+				cmdr.Logger.Fatalf("Error: %v", err)
 			}
 		case ".yml", ".yaml":
 			outBytes, err := yaml.Marshal(bkup)
 			if err != nil {
-				logrus.Fatalf("Error: %v", err)
+				cmdr.Logger.Fatalf("Error: %v", err)
 			}
 			if err = ioutil.WriteFile(pathname, outBytes, 0664); err != nil {
-				logrus.Fatalf("Error: %v", err)
+				cmdr.Logger.Fatalf("Error: %v", err)
 			}
 		}
 	} else {
 		outBytes, err := json.MarshalIndent(bkup, "", "  ")
 		if err != nil {
-			logrus.Fatalf("Error: %v", err)
+			cmdr.Logger.Fatalf("Error: %v", err)
 		}
 		fmt.Printf("%s\n", string(outBytes))
 	}

@@ -6,7 +6,7 @@ package util
 
 import (
 	"crypto/x509"
-	"github.com/sirupsen/logrus"
+	"github.com/hedzr/cmdr"
 	"io/ioutil"
 	"os"
 )
@@ -22,18 +22,18 @@ var certDirectories = []string{
 func AddCACert(path string, roots *x509.CertPool) *x509.CertPool {
 	f, err := os.Open(path)
 	if err != nil {
-		logrus.Fatalf("Could not open CA cert: %v", err)
+		cmdr.Logger.Fatalf("Could not open CA cert: %v", err)
 		return roots
 	}
 
 	fBytes, err := ioutil.ReadAll(f)
 	if err != nil {
-		logrus.Fatalf("Failed to read CA cert: %v", err)
+		cmdr.Logger.Fatalf("Failed to read CA cert: %v", err)
 		return roots
 	}
 
 	if !roots.AppendCertsFromPEM(fBytes) {
-		logrus.Fatalf("Could not add CA to CA pool: %v", err)
+		cmdr.Logger.Fatalf("Could not add CA to CA pool: %v", err)
 	}
 	return roots
 }
@@ -49,7 +49,7 @@ func LoadSystemRootCAs() (systemRoots *x509.CertPool, err error) {
 		for _, fi := range fis {
 			data, err := ioutil.ReadFile(directory + "/" + fi.Name())
 			if err == nil && systemRoots.AppendCertsFromPEM(data) {
-				logrus.Debugf("Loaded Root CA %s", fi.Name())
+				cmdr.Logger.Debugf("Loaded Root CA %s", fi.Name())
 			}
 		}
 	}

@@ -8,7 +8,7 @@ import (
 	"github.com/hedzr/cmdr"
 	"github.com/hedzr/consul-tags"
 	"github.com/hedzr/consul-tags/objects/consul"
-	"github.com/sirupsen/logrus"
+	"github.com/hedzr/logex/logx/logrus"
 )
 
 func Entry() {
@@ -19,10 +19,11 @@ func Entry() {
 
 	if err := cmdr.Exec(buildCmds(),
 		cmdr.WithEnvPrefix("CT"),
-		cmdr.WithLogex(logrus.DebugLevel),
+		// cmdr.WithLogex(logrus.DebugLevel),
+		cmdr.WithLogx(logrus.New("debug", false, true)),
 		cmdr.WithWatchMainConfigFileToo(true),
-		); err != nil {
-		logrus.Errorf("Error: %v", err)
+	); err != nil {
+		cmdr.Logger.Errorf("Error: %v", err)
 	}
 
 }

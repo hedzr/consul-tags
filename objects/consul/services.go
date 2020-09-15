@@ -7,7 +7,6 @@ package consul
 import (
 	"fmt"
 	"github.com/hedzr/cmdr"
-	"github.com/sirupsen/logrus"
 )
 
 func ServiceList() (err error) {
@@ -17,12 +16,12 @@ func ServiceList() (err error) {
 }
 
 func listServices(registrar *Registrar) error {
-	logrus.Debugf("List the services at '%s'...", cmdr.GetStringP(TAGS_PREFIX, "addr"))
+	cmdr.Logger.Debugf("List the services at '%s'...", cmdr.GetStringP(TAGS_PREFIX, "addr"))
 
 	WaitForResult(func() (bool, error) {
 		vm, qm, err := registrar.FirstClient.Catalog().Services(nil)
 		if err != nil {
-			logrus.Errorf("qm: %v, err: %v", qm, err)
+			cmdr.Logger.Errorf("qm: %v, err: %v", qm, err)
 			return false, err
 		}
 
@@ -31,7 +30,7 @@ func listServices(registrar *Registrar) error {
 		}
 		return true, nil
 	}, func(err error) {
-		logrus.Fatalf("err: %v", err)
+		cmdr.Logger.Fatalf("err: %v", err)
 	})
 	return nil
 }

@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"github.com/hashicorp/consul/api"
 	"github.com/hedzr/cmdr"
-	"github.com/sirupsen/logrus"
 	"gopkg.in/hedzr/errors.v2"
 	"strconv"
 	"strings"
@@ -36,10 +35,10 @@ func Tags() error {
 
 	if true {
 		cc := GetConsulApiEntryPoint(registrar)
-		logrus.Debugf("GetConsulApiEntryPoint (via %s): %v\n", cmdr.GetStringP(TAGS_PREFIX, "addr"), cc)
+		cmdr.Logger.Debugf("GetConsulApiEntryPoint (via %s): %v\n", cmdr.GetStringP(TAGS_PREFIX, "addr"), cc)
 
 		// for i, n := range viper.GetFlagNames() {
-		// 	logrus.Debugf("    - flag name %d: %s, value: %v\n", i, n, viper.Get(n))
+		// 	cmdr.Logger.Debugf("    - flag name %d: %s, value: %v\n", i, n, viper.Get(n))
 		// }
 	}
 
@@ -62,7 +61,7 @@ func listServiceTags(registrar *Registrar) (err error) {
 }
 
 func listServiceTagsByName(registrar *Registrar, serviceName string) {
-	logrus.Debugf("List the tags of service '%s' at '%s'...", serviceName, cmdr.GetStringP(TAGS_PREFIX, "addr"))
+	cmdr.Logger.Debugf("List the tags of service '%s' at '%s'...", serviceName, cmdr.GetStringP(TAGS_PREFIX, "addr"))
 
 	WaitForResult(func() (bool, error) {
 		catalogServices, err := QueryService(serviceName, registrar.FirstClient.Catalog())
@@ -87,23 +86,23 @@ func listServiceTagsByName(registrar *Registrar, serviceName string) {
 
 		return true, nil
 	}, func(err error) {
-		logrus.Fatalf("err: %v", err)
+		cmdr.Logger.Fatalf("err: %v", err)
 	})
 }
 
 func listServiceTagsByID(registrar *Registrar, id string) {
-	logrus.Debugf("List the tags of service by id '%s'...", id)
+	cmdr.Logger.Debugf("List the tags of service by id '%s'...", id)
 	as0, err := QueryServiceByID(id, registrar.FirstClient)
 	if err != nil {
-		logrus.Fatalf("Error: %v", err)
+		cmdr.Logger.Fatalf("Error: %v", err)
 	} else {
 		s, err1 := AgentServiceToCatalogService(as0, registrar.FirstClient)
 		if err1 != nil {
-			logrus.Fatalf("Error: %v", err)
+			cmdr.Logger.Fatalf("Error: %v", err)
 			return
 		}
 
-		// logrus.Debugf("    #%d. id='%s'[%s:%d], tags=%v, meta=%v, Node: %s,%s\n",
+		// cmdr.Logger.Debugf("    #%d. id='%s'[%s:%d], tags=%v, meta=%v, Node: %s,%s\n",
 		// 		1, s.ServiceID, s.ServiceAddress, s.ServicePort,
 		// 		s.ServiceTags, s.NodeMeta, s.Node, s.Address)
 
@@ -124,7 +123,7 @@ func modifyServiceTags(registrar *Registrar) error {
 }
 
 func modifyServiceTagsByName(registrar *Registrar, serviceName string) (err error) {
-	logrus.Debugf("Modifying the tags of service '%s'...", serviceName)
+	cmdr.Logger.Debugf("Modifying the tags of service '%s'...", serviceName)
 
 	var (
 		catalogServices []*api.CatalogService
@@ -140,7 +139,7 @@ func modifyServiceTagsByName(registrar *Registrar, serviceName string) (err erro
 
 	catalogServices, err = QueryService(serviceName, registrar.FirstClient.Catalog())
 	if err != nil {
-		logrus.Fatalf("Error: %v", err)
+		cmdr.Logger.Fatalf("Error: %v", err)
 		return
 	}
 
@@ -157,7 +156,7 @@ func modifyServiceTagsByName(registrar *Registrar, serviceName string) (err erro
 
 		if bothMode || metaMode == false {
 
-			logrus.Debugf("    %s: tags: %v", catalogService.ServiceID, catalogService.ServiceTags)
+			cmdr.Logger.Debugf("    %s: tags: %v", catalogService.ServiceID, catalogService.ServiceTags)
 
 			tags := ModifyTags(catalogService.ServiceTags, addList, rmList, delim, clearFlag, plainMode, stringMode)
 
@@ -169,7 +168,7 @@ func modifyServiceTagsByName(registrar *Registrar, serviceName string) (err erro
 				Address:           agentService.Address,
 				EnableTagOverride: catalogService.ServiceEnableTagOverride,
 			}); err != nil {
-				logrus.Errorf("Error: %v", err)
+				cmdr.Logger.Errorf("Error: %v", err)
 				return
 			}
 
@@ -179,7 +178,7 @@ func modifyServiceTagsByName(registrar *Registrar, serviceName string) (err erro
 			// fmt.Printf("    #%d. id='%catalogService'[%catalogService:%d], tags=%v, meta=%v, Node: %catalogService,%catalogService:%d\n",
 			// 	i, catalogService.ServiceID, catalogService.ServiceAddress, catalogService.ServicePort,
 			// 	sNew.Tags, catalogService.NodeMeta, catalogService.Node, catalogService.Address, as.Port)
-			// logrus.Debugf("    #%d. id='%catalogService'[%catalogService:%d], tags=%v, meta=%v, Node: %catalogService,%catalogService\n",
+			// cmdr.Logger.Debugf("    #%d. id='%catalogService'[%catalogService:%d], tags=%v, meta=%v, Node: %catalogService,%catalogService\n",
 			// 	i, catalogService.ServiceID, catalogService.ServiceAddress, catalogService.ServicePort,
 			// 	catalogService.ServiceTags, catalogService.NodeMeta, catalogService.Node, catalogService.Address)
 			fmt.Printf("%s: %s\n", catalogService.ServiceID, strings.Join(sNew.Tags, ","))
@@ -188,11 +187,11 @@ func modifyServiceTagsByName(registrar *Registrar, serviceName string) (err erro
 
 		if bothMode || metaMode {
 
-			logrus.Debugf("    %s: meta: %v", catalogService.ServiceID, catalogService.NodeMeta)
+			cmdr.Logger.Debugf("    %s: meta: %v", catalogService.ServiceID, catalogService.NodeMeta)
 
 			ModifyNodeMeta(catalogService.NodeMeta, addList, rmList, delim, clearFlag, false, stringMode)
 
-			logrus.Debugf("    %s: meta: %v, modified.", catalogService.ServiceID, catalogService.NodeMeta)
+			cmdr.Logger.Debugf("    %s: meta: %v, modified.", catalogService.ServiceID, catalogService.NodeMeta)
 
 			// catalogService.NodeMeta["id"] = catalogService.ServiceID
 			// catalogService.NodeMeta["addr"] = catalogService.Address
@@ -210,11 +209,11 @@ func modifyServiceTagsByName(registrar *Registrar, serviceName string) (err erro
 				// Datacenter      : registrar.FirstClient.Catalog().Datacenters()[0],
 			}, nil)
 			if err != nil {
-				logrus.Errorf("Error: %v", err)
+				cmdr.Logger.Errorf("Error: %v", err)
 				return
 			}
 
-			logrus.Debugf("\twriteMeta: %v", writeMeta)
+			cmdr.Logger.Debugf("\twriteMeta: %v", writeMeta)
 		}
 	}
 
@@ -230,14 +229,14 @@ func modifyServiceTagsByName(registrar *Registrar, serviceName string) (err erro
 			}
 			return true, err
 		}, func(err error) {
-			logrus.Errorf("err: %v", err)
+			cmdr.Logger.Errorf("err: %v", err)
 		})
 	}
 	return
 }
 
 func modifyServiceTagsByID(registrar *Registrar, id string) (err error) {
-	logrus.Debugf("Modifying the tags of service by id '%s'...", id)
+	cmdr.Logger.Debugf("Modifying the tags of service by id '%s'...", id)
 
 	var (
 		as0, sNew  *api.AgentService
@@ -254,13 +253,13 @@ func modifyServiceTagsByID(registrar *Registrar, id string) (err error) {
 
 	as0, err = QueryServiceByID(id, registrar.FirstClient)
 	if err != nil {
-		logrus.Errorf("Error: %v", err)
+		cmdr.Logger.Errorf("Error: %v", err)
 		return
 	}
 
 	s, err = AgentServiceToCatalogService(as0, registrar.FirstClient)
 	if err != nil {
-		logrus.Errorf("Error: %v", err)
+		cmdr.Logger.Errorf("Error: %v", err)
 		return
 	}
 
@@ -275,7 +274,7 @@ func modifyServiceTagsByID(registrar *Registrar, id string) (err error) {
 	tags := ModifyTags(s.ServiceTags, addList, rmList, delim, clearFlag, plainMode, stringMode)
 
 	// for _, t = range tags {
-	// 	logrus.Debugf("    *** Tags: %v", tags)
+	// 	cmdr.Logger.Debugf("    *** Tags: %v", tags)
 	// }
 
 	err = client.Agent().ServiceRegister(&api.AgentServiceRegistration{
@@ -287,21 +286,21 @@ func modifyServiceTagsByID(registrar *Registrar, id string) (err error) {
 		EnableTagOverride: as0.EnableTagOverride,
 	})
 	if err != nil {
-		logrus.Errorf("Error: %v", err)
+		cmdr.Logger.Errorf("Error: %v", err)
 		return
 	}
 
 	// 重新载入s的等价物，才能得到新的tags集合，s.ServiceTags并不会自动更新为新集合
 	sNew, err = QueryServiceByID(as0.ID, client)
 	if err != nil {
-		logrus.Errorf("Error: %v", err)
+		cmdr.Logger.Errorf("Error: %v", err)
 		return
 	}
 
 	// fmt.Printf("    id='%s'[%s:%d], tags=%v, Node: %s,%s:%d\n",
 	// 	as0.ID, as0.Address, as0.Port,
 	// 	sNew.Tags, s.Node, as0.Address, as.Port)
-	// logrus.Debugf("    #%d. id='%s'[%s:%d], tags=%v, meta=%v, Node: %s,%s\n",
+	// cmdr.Logger.Debugf("    #%d. id='%s'[%s:%d], tags=%v, meta=%v, Node: %s,%s\n",
 	// 	i, s.ServiceID, s.ServiceAddress, s.ServicePort,
 	// 	s.ServiceTags, s.NodeMeta, s.Node, s.Address)
 	fmt.Printf("%s: %s\n", s.ServiceID, strings.Join(sNew.Tags, ","))
@@ -316,7 +315,7 @@ func toggleServiceTags(registrar *Registrar) {
 	}
 	id := cmdr.GetStringP(MS_PREFIX, "id")
 	if id != "" {
-		logrus.Fatalf("toggle tags can be applied with --name but --id")
+		cmdr.Logger.Fatalf("toggle tags can be applied with --name but --id")
 		return
 	}
 }
@@ -336,31 +335,31 @@ func toggleServiceTagsByName(registrar *Registrar, name string) {
 		// metaMode   = cmdr.GetBoolP(TAGS_PREFIX, "modify.meta")
 	)
 
-	logrus.Debugf("Toggle the tags of service '%s'...", name)
+	cmdr.Logger.Debugf("Toggle the tags of service '%s'...", name)
 	theServices, err = QueryService(name, registrar.FirstClient.Catalog())
 	if err != nil {
-		logrus.Fatalf("Error: %v", err)
+		cmdr.Logger.Fatalf("Error: %v", err)
 	} else {
 		newMaster := strings.Split(addresses, ":")
 		newMasterPort := 0
 		if len(newMaster) > 1 {
 			newMasterPort, err = strconv.Atoi(newMaster[1])
 			if err != nil {
-				logrus.Fatalf("Error: %v", err)
+				cmdr.Logger.Fatalf("Error: %v", err)
 				return
 			}
 		}
 		if len(newMaster) == 0 {
-			logrus.Fatalf("--address to specify the master ip:port, it's NOT optional.")
+			cmdr.Logger.Fatalf("--address to specify the master ip:port, it's NOT optional.")
 			return
 		}
 		// if len(masterTag) == 1 {
 		if len(masterTag) == 0 {
-			logrus.Fatalf("--set to specify the master tag, it's NOT optional.")
+			cmdr.Logger.Fatalf("--set to specify the master tag, it's NOT optional.")
 			return
 		}
 		if len(slaveTag) == 0 {
-			logrus.Fatalf("--reset to specify the slave tag, it's NOT optional.")
+			cmdr.Logger.Fatalf("--reset to specify the slave tag, it's NOT optional.")
 			return
 		}
 
@@ -382,12 +381,12 @@ func toggleServiceTagsByName(registrar *Registrar, name string) {
 			// }
 
 			// for _, t = range tags {
-			// logrus.Debugf("    *** Tags: %v\n", tags)
+			// cmdr.Logger.Debugf("    *** Tags: %v\n", tags)
 			// }
 
 			cn := NodeToAgent(registrar, s.Node)
 			as := CatalogNodeGetService(cn, SERVICE_CONSUL_API)
-			logrus.Debugf("    %s=%v\n", SERVICE_CONSUL_API, as)
+			cmdr.Logger.Debugf("    %s=%v\n", SERVICE_CONSUL_API, as)
 			client := getClient(as.Address, as.Port)
 			agentService := cn.Services[s.ServiceID]
 
@@ -400,7 +399,7 @@ func toggleServiceTagsByName(registrar *Registrar, name string) {
 				EnableTagOverride: s.ServiceEnableTagOverride,
 			})
 			if err != nil {
-				logrus.Fatalf("Error: %v", err)
+				cmdr.Logger.Fatalf("Error: %v", err)
 				return
 			}
 
@@ -413,7 +412,7 @@ func toggleServiceTagsByName(registrar *Registrar, name string) {
 			// 	}
 			// }
 			// if err != nil {
-			// 	logrus.Fatal(fmt.Errorf("Error: %v, %v", err, cs))
+			// 	cmdr.Logger.Fatal(fmt.Errorf("Error: %v, %v", err, cs))
 			// }
 			// client.Catalog().Register(&api.CatalogRegistration{
 			// 	ID: s.ServiceID,
@@ -426,12 +425,12 @@ func toggleServiceTagsByName(registrar *Registrar, name string) {
 			// 重新载入s的等价物，才能得到新的tags集合，s.ServiceTags并不会自动更新为新集合
 			sNew, err := QueryServiceByID(s.ServiceID, client)
 			if err != nil {
-				logrus.Fatalf("Error: %v", err)
+				cmdr.Logger.Fatalf("Error: %v", err)
 				return
 			}
 
 			// fmt.Printf("    TAGS=%v\n\n", sNew.Tags)
-			// logrus.Debugf("    #%d. id='%s'[%s:%d], tags=%v, meta=%v, Node: %s,%s\n",
+			// cmdr.Logger.Debugf("    #%d. id='%s'[%s:%d], tags=%v, meta=%v, Node: %s,%s\n",
 			// 	i, s.ServiceID, s.ServiceAddress, s.ServicePort,
 			// 	s.ServiceTags, s.NodeMeta, s.Node, s.Address)
 			fmt.Printf("%s: %s\n", s.ServiceID, strings.Join(sNew.Tags, ","))

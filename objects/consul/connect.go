@@ -10,7 +10,6 @@ import (
 	"github.com/hashicorp/consul/api"
 	"github.com/hedzr/cmdr"
 	"github.com/hedzr/consul-tags/util"
-	"github.com/sirupsen/logrus"
 	"net/http"
 	"strings"
 	"time"
@@ -31,7 +30,7 @@ func getConnectionFromFlags(prefix string) (client *api.Client, bkup *kvJSON, er
 	if !strings.Contains(config.Address, ":") {
 		config.Address = fmt.Sprintf("%s:%v", config.Address, cmdr.GetIntP(prefix, "port"))
 	}
-	logrus.Debugf("Connecting to %s://%s ...", config.Scheme, config.Address)
+	cmdr.Logger.Debugf("Connecting to %s://%s ...", config.Scheme, config.Address)
 
 	// Populate backup metadata
 	bkup = &kvJSON{
@@ -62,7 +61,7 @@ func getConnectionFromFlags(prefix string) (client *api.Client, bkup *kvJSON, er
 		var cert tls.Certificate
 		cert, err = tls.LoadX509KeyPair(cmdr.GetStringP(prefix, "cert"), cmdr.GetStringP(prefix, "key"))
 		if err != nil {
-			logrus.Fatalf("Could not load cert: %v", err)
+			cmdr.Logger.Fatalf("Could not load cert: %v", err)
 		}
 		tlsConf.Certificates = append(tlsConf.Certificates, cert)
 
@@ -97,7 +96,7 @@ func getConnectionFromFlags(prefix string) (client *api.Client, bkup *kvJSON, er
 	// Generate and return the API client
 	client, err = api.NewClient(config)
 	if err != nil {
-		logrus.Fatalf("Error: %v", err)
+		cmdr.Logger.Fatalf("Error: %v", err)
 		fmt.Println("Failed!")
 	} else {
 		fmt.Println("successfully")

@@ -10,5 +10,5 @@ import (
 
 func main() {
 	impl.Entry()
-	// logrus.Debugf("stopping server [%s]", consul_tags.APP_NAME)
+	// cmdr.Logger.Debugf("stopping server [%s]", consul_tags.APP_NAME)
 }

@@ -10,7 +10,6 @@ import (
 	"fmt"
 	"github.com/hashicorp/consul/api"
 	"github.com/hedzr/cmdr"
-	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
@@ -53,7 +52,7 @@ func Restore() (err error) {
 			return fmt.Errorf("unknown encoding '%v' for key '%s'", ve.Encoding, k)
 		}
 
-		logrus.Debugf("Restoring key '%s'", k)
+		cmdr.Logger.Debugf("Restoring key '%s'", k)
 		if _, err := kv.Put(&api.KVPair{
 			Key:   k,
 			Value: []byte(v),

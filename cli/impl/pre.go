@@ -6,18 +6,17 @@ package impl
 
 import (
 	"github.com/hedzr/cmdr"
-	"github.com/sirupsen/logrus"
 )
 
 func Pre(cmd *cmdr.Command, args []string) (err error) {
-	if cmdr.GetDebugMode() {
-		logrus.SetLevel(logrus.DebugLevel)
-	}
-	logrus.Debug("app starting...")
+	//if cmdr.GetDebugMode() {
+	//	cmdr.Logger.SetLevel(logrus.DebugLevel)
+	//}
+	cmdr.Logger.Debugf("app starting...")
 	return
 }
 
 func Post(cmd *cmdr.Command, args []string) {
-	logrus.Debug("app stopping...")
-	logrus.Debug("app stopped.")
+	cmdr.Logger.Debugf("app stopping...")
+	cmdr.Logger.Debugf("app stopped.")
 }
