@@ -5,7 +5,7 @@
 package consul_tags
 
 const (
-	APP_NAME   = "consul-tags" //
+	AppName    = "consul-tags" //
 	Version    = "0.5.5"       //
 	VersionInt = 0x000505      // using as
 )
