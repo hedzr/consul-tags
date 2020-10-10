@@ -45,3 +45,5 @@ main
 consul-backup.json
 consul-backup.yml
 consul-backup.toml
+
+.env.local
