@@ -14,6 +14,7 @@ on:
 
 env:
   consul_ver: 1.8.4
+  APPNAME: consul-tags
 
 jobs:
   test:
@@ -139,7 +140,7 @@ jobs:
         env:
           HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          IMAGE_NAME: consul-tags
+          IMAGE_NAME: $APPNAME
           IMAGE_TAG:
         run: |
           IMAGE_TAG=${GITHUB_REF#*/}
@@ -181,7 +182,7 @@ jobs:
               GOVERSION: $GOVERSION
               BUILDTIME: $BUILDTIME
           EOF
-          for app in awesome-tool; do
+          for app in $APPNAME; do
           for dir in .; do
             for GOOS in windows linux darwin; do
               for GOARCH in amd64; do
