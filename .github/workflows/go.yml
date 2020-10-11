@@ -133,35 +133,35 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
 
-      # - name: Docker Build
-      #   #if: startsWith(github.ref, 'refs/tags/v') || contains(github.ref, '/master')
-      #   if: startsWith(github.ref, 'refs/tags/v')
-      #   env:
-      #     HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
-      #     GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #     IMAGE_NAME: awesome-tool
-      #     IMAGE_TAG:
-      #   run: |
-      #     IMAGE_TAG=${GITHUB_REF#*/}
-      #     IMAGE_TAG=${IMAGE_TAG#*/}
-      #     IMAGE_TAG=$(echo $IMAGE_TAG | sed -e "s#^v##")
-      #     echo "Using IMAGE_TAG: $IMAGE_TAG"
-      #     docker build \
-      #       -t docker.pkg.github.com/hedzr/$IMAGE_NAME/$IMAGE_NAME:$IMAGE_TAG \
-      #       -t docker.pkg.github.com/hedzr/$IMAGE_NAME/$IMAGE_NAME:latest \
-      #       -t hedzr/$IMAGE_NAME:$IMAGE_TAG \
-      #       -t hedzr/$IMAGE_NAME:latest \
-      #       .
-      #     echo $GH_TOKEN | docker login docker.pkg.github.com -u hedzr --password-stdin
-      #     # docker tag IMAGE_ID docker.pkg.github.com/hedzr/$IMAGE_NAME:$VERSION
-      #     docker push docker.pkg.github.com/hedzr/$IMAGE_NAME/$IMAGE_NAME:$IMAGE_TAG
-      #     docker push docker.pkg.github.com/hedzr/$IMAGE_NAME/$IMAGE_NAME:latest
-      #     #
-      #     echo $HUB_TOKEN | docker login -u hedzr --password-stdin
-      #     # docker tag docker.pkg.github.com/hedzr/$IMAGE_NAME:latest hedzr/$IMAGE_NAME:$IMAGE_TAG
-      #     # docker tag docker.pkg.github.com/hedzr/$IMAGE_NAME:latest hedzr/$IMAGE_NAME:latest
-      #     docker push hedzr/$IMAGE_NAME:$IMAGE_TAG
-      #     docker push hedzr/$IMAGE_NAME:latest
+      - name: Docker Build
+        #if: startsWith(github.ref, 'refs/tags/v') || contains(github.ref, '/master')
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          IMAGE_NAME: consul-tags
+          IMAGE_TAG:
+        run: |
+          IMAGE_TAG=${GITHUB_REF#*/}
+          IMAGE_TAG=${IMAGE_TAG#*/}
+          IMAGE_TAG=$(echo $IMAGE_TAG | sed -e "s#^v##")
+          echo "Using IMAGE_TAG: $IMAGE_TAG"
+          docker build \
+            -t docker.pkg.github.com/hedzr/$IMAGE_NAME/$IMAGE_NAME:$IMAGE_TAG \
+            -t docker.pkg.github.com/hedzr/$IMAGE_NAME/$IMAGE_NAME:latest \
+            -t hedzr/$IMAGE_NAME:$IMAGE_TAG \
+            -t hedzr/$IMAGE_NAME:latest \
+            .
+          echo $GH_TOKEN | docker login docker.pkg.github.com -u hedzr --password-stdin
+          # docker tag IMAGE_ID docker.pkg.github.com/hedzr/$IMAGE_NAME:$VERSION
+          docker push docker.pkg.github.com/hedzr/$IMAGE_NAME/$IMAGE_NAME:$IMAGE_TAG
+          docker push docker.pkg.github.com/hedzr/$IMAGE_NAME/$IMAGE_NAME:latest
+          #
+          echo $HUB_TOKEN | docker login -u hedzr --password-stdin
+          # docker tag docker.pkg.github.com/hedzr/$IMAGE_NAME:latest hedzr/$IMAGE_NAME:$IMAGE_TAG
+          # docker tag docker.pkg.github.com/hedzr/$IMAGE_NAME:latest hedzr/$IMAGE_NAME:latest
+          docker push hedzr/$IMAGE_NAME:$IMAGE_TAG
+          docker push hedzr/$IMAGE_NAME:latest
 
       - name: Build
         run: |
