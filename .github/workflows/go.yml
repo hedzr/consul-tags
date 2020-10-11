@@ -107,7 +107,8 @@ jobs:
 
       - name: kill consul agent
         run: |
-          $(ps aux|grep consul|grep -v grep) && killall consul
+          $(ps aux|grep consul|grep -v grep) && \
+            kill -9 $(ps aux|grep consul|grep -v grep|awk '{print $2}')
 
 
   build:
