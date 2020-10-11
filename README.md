@@ -4,8 +4,8 @@
 [![GitHub tag (latest SemVer)](https://img.shields.io/github/tag/hedzr/consul-tags.svg?label=release)](https://github.com/hedzr/consul-tags/releases)
 [![](https://img.shields.io/badge/go-dev-green)](https://pkg.go.dev/github.com/hedzr/consul-tags)
 [![license](https://img.shields.io/github/license/hedzr/consul-tags.svg)](https://pkg.go.dev/github.com/hedzr/consul-tags)
-[![Docker Automated build](https://img.shields.io/docker/automated/hedzr/consul-tags.svg)]()
-[![Docker Pulls](https://img.shields.io/docker/pulls/hedzr/consul-tags.svg)]()
+[![Docker Automated build](https://img.shields.io/docker/automated/hedzr/consul-tags.svg)](https://hub.docker.com/r/hedzr/consul-tags)
+[![Docker Pulls](https://img.shields.io/docker/pulls/hedzr/consul-tags.svg)](https://hub.docker.com/r/hedzr/consul-tags)
 <!-- [![GitHub tag](https://img.shields.io/github/tag/hedzr/consul-tags.svg)]() -->
 <!-- [![ImageLayers Size](https://img.shields.io/imagelayers/image-size/hedzr/consul-tags/latest.svg)]() -->
 
