@@ -20,7 +20,7 @@ Here is a first release for key functionality.
 
 ## News
 
-### v0.5.8
+### v0.5.9
 
 - fixed release files
 

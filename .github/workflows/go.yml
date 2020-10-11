@@ -140,7 +140,6 @@ jobs:
         env:
           HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          IMAGE_NAME: $APPNAME
           IMAGE_TAG:
         run: |
           IMAGE_TAG=${GITHUB_REF#*/}
@@ -148,21 +147,21 @@ jobs:
           IMAGE_TAG=$(echo $IMAGE_TAG | sed -e "s#^v##")
           echo "Using IMAGE_TAG: $IMAGE_TAG"
           docker build \
-            -t docker.pkg.github.com/hedzr/$IMAGE_NAME/$IMAGE_NAME:$IMAGE_TAG \
-            -t docker.pkg.github.com/hedzr/$IMAGE_NAME/$IMAGE_NAME:latest \
-            -t hedzr/$IMAGE_NAME:$IMAGE_TAG \
-            -t hedzr/$IMAGE_NAME:latest \
+            -t docker.pkg.github.com/hedzr/$APPNAME/$APPNAME:$IMAGE_TAG \
+            -t docker.pkg.github.com/hedzr/$APPNAME/$APPNAME:latest \
+            -t hedzr/$APPNAME:$IMAGE_TAG \
+            -t hedzr/$APPNAME:latest \
             .
           echo $GH_TOKEN | docker login docker.pkg.github.com -u hedzr --password-stdin
-          # docker tag IMAGE_ID docker.pkg.github.com/hedzr/$IMAGE_NAME:$VERSION
-          docker push docker.pkg.github.com/hedzr/$IMAGE_NAME/$IMAGE_NAME:$IMAGE_TAG
-          docker push docker.pkg.github.com/hedzr/$IMAGE_NAME/$IMAGE_NAME:latest
+          # docker tag IMAGE_ID docker.pkg.github.com/hedzr/$APPNAME:$VERSION
+          docker push docker.pkg.github.com/hedzr/$APPNAME/$APPNAME:$IMAGE_TAG
+          docker push docker.pkg.github.com/hedzr/$APPNAME/$APPNAME:latest
           #
           echo $HUB_TOKEN | docker login -u hedzr --password-stdin
-          # docker tag docker.pkg.github.com/hedzr/$IMAGE_NAME:latest hedzr/$IMAGE_NAME:$IMAGE_TAG
-          # docker tag docker.pkg.github.com/hedzr/$IMAGE_NAME:latest hedzr/$IMAGE_NAME:latest
-          docker push hedzr/$IMAGE_NAME:$IMAGE_TAG
-          docker push hedzr/$IMAGE_NAME:latest
+          # docker tag docker.pkg.github.com/hedzr/$APPNAME:latest hedzr/$APPNAME:$IMAGE_TAG
+          # docker tag docker.pkg.github.com/hedzr/$APPNAME:latest hedzr/$APPNAME:latest
+          docker push hedzr/$APPNAME:$IMAGE_TAG
+          docker push hedzr/$APPNAME:latest
 
       - name: Build
         run: |
