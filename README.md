@@ -20,6 +20,11 @@ Here is a first release for key functionality.
 
 ## News
 
+### v0.5.7
+
+- update the CI scripts
+- re-enable the docker image on Docker Hub
+
 ### v0.5.5
 
 - update all codes with newest deps: cmdr, log, logex, errors.v2, ...
