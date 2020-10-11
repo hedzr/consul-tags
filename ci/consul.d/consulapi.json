@@ -9,7 +9,6 @@
                 "timeout": "1s"
             }
         ],
-        "enableTagOverride": false,
         "id": "consulapi-1",
         "name": "consulapi",
         "address": "localhost",

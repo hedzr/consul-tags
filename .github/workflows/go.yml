@@ -58,6 +58,7 @@ jobs:
           go mod download
           go build -v -o main ./cli
           rm main
+          ps aux|grep consul|grep -v grep
           go test ./...
 
   coverage:
