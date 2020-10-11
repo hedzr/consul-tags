@@ -20,6 +20,10 @@ Here is a first release for key functionality.
 
 ## News
 
+### v0.5.8
+
+- fixed release files
+
 ### v0.5.7
 
 - update the CI scripts
