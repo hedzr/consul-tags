@@ -175,26 +175,6 @@ build-freebsd:
 build-riscv:
 	@-$(MAKE) -s go-build-task os=linux goarchset=riscv64
 
-go-build-task:
-	@echo "  >  Building $(os)/$(goarchset) binary..."
-	@#echo "  >  LDFLAGS = $(LDFLAGS)"
-	# unsupported GOOS/GOARCH pair nacl/386 ??
-	$(foreach an, $(MAIN_APPS), \
-	  echo "  >  APP NAMEs = appname:$(APPNAME)|projname:$(PROJECTNAME)|an:$(an)"; \
-	  ifeq ($(an),cli) \
-	    ANAME=$(APPNAME) \
-      else \
-        ANAME=$(an) \
-      endif \
-	  $(foreach goarch, $(goarchset), \
-	    echo "     >> Building (-trimpath) $(GOBIN)/$(ANAME)_$(os)_$(goarch)...$(os)" >/dev/null; \
-	    $(GO) build -ldflags "$(LDFLAGS)" -o $(GOBIN)/$(ANAME)_$(os)_$(goarch) $(GOBASE)/$(MAIN_BUILD_PKG)/$(an); \
-	    chmod +x $(GOBIN)/$(ANAME)_$(os)_$(goarch)*; \
-	    ls -la $(LS_OPT) $(GOBIN)/$(ANAME)_$(os)_$(goarch)*; \
-	) \
-	)
-	#@ls -la $(LS_OPT) $(GOBIN)/*linux*
-
 ## build-ci: run build-ci task. just for CI tools
 build-ci:
 	@echo "  >  Building binaries in CI flow..."
@@ -203,6 +183,26 @@ build-ci:
 	)
 	@echo "  < All Done."
 	@ls -la $(LS_OPT) $(GOBIN)/*
+
+go-build-task:
+	@echo "  >  Building $(os)/$(goarchset) binary..."
+	@#echo "  >  LDFLAGS = $(LDFLAGS)"
+	# unsupported GOOS/GOARCH pair nacl/386 ??
+	$(foreach an, $(MAIN_APPS), \
+	  echo "  >  APP NAMEs = appname:$(APPNAME)|projname:$(PROJECTNAME)|an:$(an)"; \
+	  $(eval ANAME := $(shell for an in $(MAIN_APPS); do \
+	    if [[ $$an == cli ]]; then echo $(APPNAME); \
+	    else echo $$an; \
+	    fi; \
+	  done)) \
+	  $(foreach goarch, $(goarchset), \
+	    echo "     >> Building (-trimpath) $(GOBIN)/$(ANAME)_$(os)_$(goarch)...$(os)" >/dev/null; \
+	    $(GO) build -ldflags "$(LDFLAGS)" -o $(GOBIN)/$(ANAME)_$(os)_$(goarch) $(GOBASE)/$(MAIN_BUILD_PKG)/$(an); \
+	    chmod +x $(GOBIN)/$(ANAME)_$(os)_$(goarch)*; \
+	    ls -la $(LS_OPT) $(GOBIN)/$(ANAME)_$(os)_$(goarch)*; \
+	) \
+	)
+	#@ls -la $(LS_OPT) $(GOBIN)/*linux*
 
 
 
