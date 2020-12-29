@@ -202,6 +202,16 @@ go-build-task:
 	    ls -la $(LS_OPT) $(GOBIN)/$(ANAME)_$(os)_$(goarch)*; \
 	) \
 	)
+	#	$(foreach an, $(MAIN_APPS), \
+	#	  $(eval ANAME := $(shell if [ "$(an)" == "cli" ]; then echo $(APPNAME); else echo $(an); fi; )) \
+	#	  echo "  >  APP NAMEs = appname:$(APPNAME)|projname:$(PROJECTNAME)|an:$(an)|ANAME:$(ANAME)"; \
+	#	  $(foreach goarch, $(goarchset), \
+	#	    echo "     >> Building (-trimpath) $(GOBIN)/$(ANAME)_$(os)_$(goarch)...$(os)" >/dev/null; \
+	#	    $(GO) build -ldflags "$(LDFLAGS)" -o $(GOBIN)/$(ANAME)_$(os)_$(goarch) $(GOBASE)/$(MAIN_BUILD_PKG)/$(an); \
+	#	    chmod +x $(GOBIN)/$(ANAME)_$(os)_$(goarch)*; \
+	#	    ls -la $(LS_OPT) $(GOBIN)/$(ANAME)_$(os)_$(goarch)*; \
+	#	) \
+	#	)
 	#@ls -la $(LS_OPT) $(GOBIN)/*linux*
 
 
@@ -216,6 +226,7 @@ compile: go-clean go-generate
 	# @cat $(STDERR) | sed -e '1s/.*/\nError:\n/'  | sed 's/make\[.*/ /' | sed "/^/s/^/     /" 1>&2
 	#
 	@cat $(STDERR) | sed -e '1s/.*/\nError:\n/' 1>&2
+	#@if [[ -z "$(STDERR)" ]]; then echo; else echo -e "\n\nError:\n\n"; cat $(STDERR)  1>&2; fi
 
 ## exec: Run given cmd, wrapped with custom GOPATH. eg; make exec run="go test ./..."
 exec:
@@ -256,7 +267,17 @@ go-build:
 	  $(GO) build -v -race -ldflags "$(LDFLAGS)" -o $(GOBIN)/$(ANAME) $(GOBASE)/$(MAIN_BUILD_PKG)/$(an); \
 	  ls -la $(LS_OPT) $(GOBIN)/$(ANAME); \
 	)
+	#	$(foreach an, $(MAIN_APPS), \
+	#	  $(eval ANAME := $(shell if [ "$(an)" == "cli" ]; then echo $(APPNAME); else echo $(an); fi; )) \
+	#	  echo "     +race. -trimpath. APPNAME = $(APPNAME)|$(an) -> $(ANAME), LDFLAGS = $(LDFLAGS)"; \
+	#	  $(GO) build -v -race -ldflags "$(LDFLAGS)" -o $(GOBIN)/$(ANAME) $(GOBASE)/$(MAIN_BUILD_PKG)/$(an); \
+	#	  ls -la $(LS_OPT) $(GOBIN)/$(ANAME); \
+	#	)
 	ls -la $(LS_OPT) $(GOBIN)/
+	if [[ -d ./plugin/demo ]]; then \
+	  $(GO) build -v -race -buildmode=plugin -o ./ci/local/share/fluent/addons/demo.so ./plugin/demo && \
+	  chmod +x ./ci/local/share/fluent/addons/demo.so && \
+	  ls -la $(LS_OPT) ./ci/local/share/fluent/addons/demo.so; fi
 	# go build -o $(GOBIN)/$(APPNAME) $(GOFILES)
 	# chmod +x $(GOBIN)/*
 
@@ -368,7 +389,7 @@ coverage-full: | $(GOBASE)
 ## codecov: run go test for codecov; (codecov.io)
 codecov: | $(GOBASE)
 	@echo "  >  codecov ..."
-	@$(GO) test -v -race -coverprofile=coverage.txt -covermode=atomic
+	@$(GO) test . -v -race -coverprofile=coverage.txt -covermode=atomic
 	@bash <(curl -s https://codecov.io/bash) -t $(CODECOV_TOKEN)
 
 ## cyclo: run gocyclo tool
