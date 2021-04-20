@@ -20,10 +20,10 @@ Here is a first release for key functionality.
 
 ## News
 
-### v0.6.0
+### v0.6.1
 
 - upgrade to the newest consul api
-- upgrade [hedzr/cmdr](https://hedzr.com/cmdr)
+- upgrade [hedzr/cmdr](https://hedzr.com/cmdr) to v1.8.0+
 
 ### v0.5.9
 

@@ -173,7 +173,7 @@ build-riscv:
 build-ci:
 	@echo "  >  Building binaries in CI flow..."
 	$(foreach os, linux darwin windows, \
-	  @-$(MAKE) -s go-build-task os=$(os) goarchset="386 amd64" \
+	  @-$(MAKE) -s go-build-task os=$(os) goarchset="amd64" \
 	)
 	@echo "  < All Done."
 	@ls -la $(LS_OPT) $(GOBIN)/*
