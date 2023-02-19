@@ -18,7 +18,7 @@ env:
   APPNAME: "consul-tags"
   APPS: ""                    # optional, a space separated name list.
   FROM_FOLDER: "."            # Use "." for building "cli"; use "./_examples" for building them
-  ENABLE_DOCKER: 0
+  ENABLE_DOCKER: 1
   BUMP_HOMEBREW: 0
   IMAGE_NAME: ""
   consul_ver: 1.13.1
