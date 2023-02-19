@@ -2,7 +2,7 @@
 
 ![Go](https://github.com/hedzr/consul-tags/workflows/Go/badge.svg)
 [![GitHub tag (latest SemVer)](https://img.shields.io/github/tag/hedzr/consul-tags.svg?label=release)](https://github.com/hedzr/consul-tags/releases)
-[![](https://img.shields.io/badge/go-dev-green)](https://pkg.go.dev/github.com/hedzr/consul-tags)
+[![go.dev](https://img.shields.io/badge/go-dev-green)](https://pkg.go.dev/github.com/hedzr/consul-tags)
 [![license](https://img.shields.io/github/license/hedzr/consul-tags.svg)](https://pkg.go.dev/github.com/hedzr/consul-tags)
 [![Docker Automated build](https://img.shields.io/docker/automated/hedzr/consul-tags.svg)](https://hub.docker.com/r/hedzr/consul-tags)
 [![Docker Pulls](https://img.shields.io/docker/pulls/hedzr/consul-tags.svg)](https://hub.docker.com/r/hedzr/consul-tags)
@@ -16,9 +16,14 @@
 
 Here is a first release for key functionality.
 
-
-
 ## News
+
+### v0.7.0
+
+- move to go1.17+
+- upgrade to the newest consul api
+- upgrade [hedzr/cmdr](https://hedzr.com/cmdr) to v1.11.6+
+- a slightly smaller binary file
 
 ### v0.6.1
 
@@ -48,8 +53,6 @@ Here is a first release for key functionality.
 - rewrote by [`cmdr`](https://github.com/hedzr/cmdr)
 - pre-released for v0.5.1 (final)
 
-
-
 ## Install
 
 ### Binary
@@ -69,7 +72,6 @@ DON'T use `127.0.0.1` with dockerize release.
 
 > latest: master branch and based on golang:alpine
 
-
 ### Go Build
 
 clone the repo and build:
@@ -86,9 +88,7 @@ mixin:
 go get -u github.com/hedzr/consul-tags
 ```
 
-
 ## Usage
-
 
 ```bash
 
@@ -134,41 +134,31 @@ CT_APP_MS_ADDR=localhost:8500 consul-tags --help
 consul-tags ms tags ls --name=consul --addr 127.0.0.1:8500
 ```
 
-### COMMANDS:
+### COMMANDS
 
-```
+```bash
      kv              K/V pair Operations, ...
      ms, service, m  Microservice Operations, ...
      help, h         Shows a list of commands or help for one command
 ```
 
-### GLOBAL OPTIONS:
+### GLOBAL OPTIONS
 
-```
+```bash
    --help, -h                          show help (default: false)
    --version, -v                       print the version (default: false)
 ```
 
 ## Shell completion
 
-TODO
-
 ```bash
-
+consul-tags gen sh --zsh
+consul-tags gen sh --bash
 ```
-
-or put it to `/etc/bash_completion.d/`:
-
-```bash
-
-```
-
-
 
 ## Thanks
 
 my plan is building a suite of devops. consul operations is part of it.
-
 
 and some repositories are good:
 
@@ -178,13 +168,6 @@ and some repositories are good:
 
 ### Third-party repos
 
-
-
-
 ## License
 
-MIT.
-
-
-
-
+MIT/APache 2.0

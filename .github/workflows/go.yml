@@ -151,7 +151,7 @@ jobs:
 
       - name: Docker Build
         ## if: startsWith(github.ref, 'refs/tags/v') || contains(github.ref, '/master')
-        # if: startsWith(github.ref, 'refs/tags/v') && env.ENABLE_DOCKER != 0
+        if: startsWith(github.ref, 'refs/tags/v') && env.ENABLE_DOCKER != 0
         ## if: env.ENABLE_DOCKER != 0
         env:
           HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
@@ -199,16 +199,16 @@ jobs:
             --build-arg GIT_DESC="${GIT_DESC}" \
             --build-arg BUILDER_COMMENT="${BUILDER_COMMENT}" \
             --build-arg GOPROXY="https://goproxy.io,direct" \
-            -t ghcr.io/$ACTOR/$IMAGE_NAME:$IMAGE_TAG \
-            -t ghcr.io/$ACTOR/$IMAGE_NAME:latest \
+            -t ghcr.io/$ACTOR/$IMAGE_NAME/$IMAGE_NAME:$IMAGE_TAG \
+            -t ghcr.io/$ACTOR/$IMAGE_NAME/$IMAGE_NAME:latest \
             -t $ACTOR/$IMAGE_NAME:$IMAGE_TAG \
             -t $ACTOR/$IMAGE_NAME:latest \
             .
           if [ "$GH_TOKEN" != "" ]; then
             docker login ghcr.io -u $ACTOR -p $GH_TOKEN
             # docker tag IMAGE_ID ghcr.io/$ACTOR/$IMAGE_NAME:$VERSION
-            docker push ghcr.io/$ACTOR/$IMAGE_NAME:$IMAGE_TAG
-            docker push ghcr.io/$ACTOR/$IMAGE_NAME:latest
+            docker push ghcr.io/$ACTOR/$IMAGE_NAME/$IMAGE_NAME:$IMAGE_TAG
+            docker push ghcr.io/$ACTOR/$IMAGE_NAME/$IMAGE_NAME:latest
           fi
           if [ "$HUB_TOKEN" != "" ]; then
             docker login -u $ACTOR -p $HUB_TOKEN
@@ -217,7 +217,7 @@ jobs:
           fi
 
       - name: Build
-        # if: startsWith(github.ref, 'refs/tags/v')
+        if: startsWith(github.ref, 'refs/tags/v')
         shell: bash
         run: |
           APP_NAME="${GITHUB_REPOSITORY##*/}"
