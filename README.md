@@ -18,6 +18,10 @@ Here is a first release for key functionality.
 
 ## News
 
+### v0.7.1
+
+- fixed and re-enable docker build
+
 ### v0.7.0
 
 - move to go1.17+
