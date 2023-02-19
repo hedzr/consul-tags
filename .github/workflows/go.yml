@@ -151,7 +151,7 @@ jobs:
 
       - name: Docker Build
         ## if: startsWith(github.ref, 'refs/tags/v') || contains(github.ref, '/master')
-        if: startsWith(github.ref, 'refs/tags/v') && env.ENABLE_DOCKER != 0
+        # if: startsWith(github.ref, 'refs/tags/v') && env.ENABLE_DOCKER != 0
         ## if: env.ENABLE_DOCKER != 0
         env:
           HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
@@ -217,7 +217,7 @@ jobs:
           fi
 
       - name: Build
-        if: startsWith(github.ref, 'refs/tags/v')
+        # if: startsWith(github.ref, 'refs/tags/v')
         shell: bash
         run: |
           APP_NAME="${GITHUB_REPOSITORY##*/}"
