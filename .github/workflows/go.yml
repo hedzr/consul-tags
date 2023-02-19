@@ -21,6 +21,7 @@ env:
   ENABLE_DOCKER: 0
   BUMP_HOMEBREW: 0
   IMAGE_NAME: ""
+  consul_ver: 1.13.1
   #HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
   #GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -46,6 +47,22 @@ jobs:
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
+
+      - name: Preparing consul agent
+        run: |
+          url="https://releases.hashicorp.com/consul/${consul_ver}/consul_${consul_ver}_linux_amd64.zip"
+          local_file="consul_${consul_ver}_linux_amd64.zip"
+          [[ -f "/usr/local/bin/consul" ]] || {
+              [[ -f "$local_file" ]] || {
+                  wget -c "$url" -O "$local_file"
+              }
+              [[ -f "$local_file" ]] && {
+                  unzip -o -x "$local_file" && sudo mv consul /usr/local/bin/
+              }
+          }
+          [[ -d /tmp/consul ]] || mkdir /tmp/consul
+          $(ps aux|grep consul|grep -v grep) || /usr/local/bin/consul agent -config-dir ./ci/consul.d -data-dir /tmp/consul -server &
+
       - name: Test
         run: |
           GOSUMDB=off go mod download
@@ -74,6 +91,22 @@ jobs:
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
+
+      - name: Preparing consul agent
+        run: |
+          url="https://releases.hashicorp.com/consul/${consul_ver}/consul_${consul_ver}_linux_amd64.zip"
+          local_file="consul_${consul_ver}_linux_amd64.zip"
+          [[ -f "/usr/local/bin/consul" ]] || {
+              [[ -f "$local_file" ]] || {
+                  wget -c "$url" -O "$local_file"
+              }
+              [[ -f "$local_file" ]] && {
+                  unzip -o -x "$local_file" && sudo mv consul /usr/local/bin/
+              }
+          }
+          [[ -d /tmp/consul ]] || mkdir /tmp/consul
+          $(ps aux|grep consul|grep -v grep) || /usr/local/bin/consul agent -config-dir ./ci/consul.d -data-dir /tmp/consul -server &
+
       - name: Test & Coverage
         run: |
           # go install -v github.com/swaggo/swag/cmd/swag
