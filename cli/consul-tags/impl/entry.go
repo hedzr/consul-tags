@@ -6,7 +6,7 @@ package impl
 
 import (
 	"github.com/hedzr/cmdr"
-	"github.com/hedzr/consul-tags"
+	consul_tags "github.com/hedzr/consul-tags"
 	"github.com/hedzr/consul-tags/objects/consul"
 	"github.com/hedzr/logex/logx/logrus"
 )
@@ -31,208 +31,217 @@ func buildRootCommand() (rootCmd *cmdr.RootCommand) {
 
 	// kv
 
-	kvCmd := root.NewSubCommand().
+	kvCmd := cmdr.NewSubCmd().
 		Titles("kvstore", "kv").
-		Description("consul kv store operations...", ``)
+		Description("consul kv store operations...", ``).
+		AttachTo(root)
 
 	attachConsulConnectFlags(kvCmd)
 
-	kvBackupCmd := kvCmd.NewSubCommand().
+	kvBackupCmd := cmdr.NewSubCmd().
 		Titles("backup", "b", "bk", "bf", "bkp").
 		Description("Dump Consul's KV database to a JSON/YAML file", ``).
-		Action(kvBackup)
-	kvBackupCmd.NewFlag(cmdr.OptFlagTypeString).
+		Action(kvBackup).
+		AttachTo(kvCmd)
+	cmdr.NewString("consul-backup.json").Placeholder("FILE").
 		Titles("output", "o").
 		Description("Write output to a file (*.json / *.yml)", ``).
-		DefaultValue("consul-backup.json", "FILE")
+		AttachTo(kvBackupCmd)
 
-	kvRestoreCmd := kvCmd.NewSubCommand().
+	kvRestoreCmd := cmdr.NewSubCmd().
 		Titles("restore", "r").
 		Description("restore to Consul's KV store, from a a JSON/YAML backup file", ``).
-		Action(kvRestore)
-	kvRestoreCmd.NewFlag(cmdr.OptFlagTypeString).
+		Action(kvRestore).
+		AttachTo(kvCmd)
+	cmdr.NewString("consul-backup.json").Placeholder("FILE").
 		Titles("input", "i").
 		Description("Read the input file (*.json / *.yml)", ``).
-		DefaultValue("consul-backup.json", "FILE")
+		AttachTo(kvRestoreCmd)
 
 	// ms
 
-	msCmd := root.NewSubCommand().
+	msCmd := cmdr.NewSubCmd().
 		Titles("microservice", "ms", "micro-service").
-		Description("micro-service operations...", ``)
+		Description("micro-service operations...", ``).
+		AttachTo(root)
 
-	msCmd.NewFlag(cmdr.OptFlagTypeString).
+	cmdr.NewString().Placeholder("NAME").
 		Titles("name", "n").
 		Description("name of the service", ``).
-		DefaultValue("", "NAME")
-	msCmd.NewFlag(cmdr.OptFlagTypeString).
+		DefaultValue("", "NAME").
+		AttachTo(msCmd)
+	cmdr.NewString().Placeholder("ID").
 		Titles("id", "i", "ID").
 		Description("unique id of the service", ``).
-		DefaultValue("", "ID")
-	msCmd.NewFlag(cmdr.OptFlagTypeBool).
+		AttachTo(msCmd)
+	cmdr.NewBool().
 		Titles("all", "a").
 		Description("all services", ``).
-		DefaultValue(false, "")
+		AttachTo(msCmd)
 
 	// ms list
 
 	/* msListCmd := */
-	msCmd.NewSubCommand().
+	cmdr.NewSubCmd().
 		Titles("list", "ls", "l", "lst", "dir").
 		Description("list services.", ``).
-		Action(msList)
+		Action(msList).
+		AttachTo(msCmd)
 
 	// ms tags
 
-	msTagsCmd := kvCmd.NewSubCommand().
+	msTagsCmd := cmdr.NewSubCmd().
 		Titles("tags", "t").
 		Description("tags operations of a services.", ``).
-		Action(msList)
+		Action(msList).AttachTo(kvCmd)
 
 	attachConsulConnectFlags(msTagsCmd)
 
-	msTagsCmd.NewSubCommand().
+	cmdr.NewSubCmd().
 		Titles("list", "ls", "l", "lst", "dir").
 		Description("list tags of a service.", ``).
-		Action(msTagsList)
+		Action(msTagsList).
+		AttachTo(msTagsCmd)
 
 	// ms tags modify
 
-	msTagsModifyCmd := msTagsCmd.NewSubCommand().
+	msTagsModifyCmd := cmdr.NewSubCmd().
 		Titles("modify", "m", "mod", "modi", "update", "change").
 		Description("modify tags of a service.", ``).
-		Action(msTagsModify)
+		Action(msTagsModify).
+		AttachTo(msTagsCmd)
 
 	attachModifyFlags(msTagsModifyCmd)
 
-	msTagsModifyCmd.NewFlag(cmdr.OptFlagTypeStringSlice).
+	cmdr.NewStringSlice().Placeholder("LIST").
 		Titles("add", "a", "add-list").
 		Description("a comma list to be added.", ``).
-		DefaultValue([]string{}, "LIST").
-		Group("List")
-	msTagsModifyCmd.NewFlag(cmdr.OptFlagTypeStringSlice).
+		Group("List").
+		AttachTo(msTagsModifyCmd)
+	cmdr.NewStringSlice().Placeholder("LIST").
 		Titles("remove", "r", "rm-list", "rm", "del", "delete").
 		Description("a comma list to be removed.", ``).
-		DefaultValue([]string{}, "LIST").
-		Group("List")
+		Group("List").
+		AttachTo(msTagsModifyCmd)
 
 	// ms tags toggle
 
-	msTagsToggleCmd := msTagsCmd.NewSubCommand().
+	msTagsToggleCmd := cmdr.NewSubCmd().
 		Titles("toggle", "t", "tog", "switch").
 		Description("toggle tags of a service.", ``).
-		Action(msTagsToggle)
+		Action(msTagsToggle).
+		AttachTo(msTagsCmd)
 
 	attachModifyFlags(msTagsToggleCmd)
 
-	msTagsToggleCmd.NewFlag(cmdr.OptFlagTypeStringSlice).
+	cmdr.NewStringSlice().Placeholder("LIST").
 		Titles("set", "s").
 		Description("set to `tag` which service specified by --address", ``).
-		DefaultValue([]string{}, "LIST").
-		Group("List")
-	msTagsToggleCmd.NewFlag(cmdr.OptFlagTypeStringSlice).
+		Group("List").
+		AttachTo(msTagsToggleCmd)
+	cmdr.NewStringSlice().Placeholder("LIST").
 		Titles("unset", "u", "reset").
 		Description("and reset the others service nodes to `tag`", ``).
-		DefaultValue([]string{}, "LIST").
-		Group("List")
-	msTagsToggleCmd.NewFlag(cmdr.OptFlagTypeStringSlice).
+		Group("List").
+		AttachTo(msTagsToggleCmd)
+	cmdr.NewString().Placeholder("HOST:PORT").
 		Titles("address", "a", "addr").
 		Description("the address of the service (by id or name)", ``).
-		DefaultValue("", "HOST:PORT")
+		AttachTo(msTagsToggleCmd)
 
 	return
 }
 
 func attachModifyFlags(cmd cmdr.OptCmd) {
-	cmd.NewFlag(cmdr.OptFlagTypeString).
+	cmdr.NewString("=").
 		Titles("delim", "d").
 		Description("delimitor char in `non-plain` mode.", ``).
-		DefaultValue("=", "")
+		DefaultValue("=", "").
+		AttachTo(cmd)
 
-	cmd.NewFlag(cmdr.OptFlagTypeBool).
+	cmdr.NewBool().
 		Titles("clear", "c").
 		Description("clear all tags.", ``).
-		DefaultValue(false, "").
-		Group("Operate")
+		Group("Operate").
+		AttachTo(cmd)
 
-	cmd.NewFlag(cmdr.OptFlagTypeBool).
+	cmdr.NewBool().
 		Titles("string", "g", "string-mode").
 		Description("In 'String Mode', default will be disabled: default, a tag string will be split by comma(,), and treated as a string list.", ``).
 		DefaultValue(false, "").
-		Group("Mode")
+		ToggleGroup("Mode").
+		AttachTo(cmd)
 
-	cmd.NewFlag(cmdr.OptFlagTypeBool).
+	cmdr.NewBool().
 		Titles("meta", "m", "meta-mode").
 		Description("In 'Meta Mode', service 'NodeMeta' field will be updated instead of 'Tags'. (--plain assumed false).", ``).
-		DefaultValue(false, "").
-		Group("Mode")
+		ToggleGroup("Mode").
+		AttachTo(cmd)
 
-	cmd.NewFlag(cmdr.OptFlagTypeBool).
+	cmdr.NewBool().
 		Titles("both", "2", "both-mode").
 		Description("In 'Both Mode', both of 'NodeMeta' and 'Tags' field will be updated.", ``).
-		DefaultValue(false, "").
-		Group("Mode")
+		ToggleGroup("Mode").
+		AttachTo(cmd)
 
-	cmd.NewFlag(cmdr.OptFlagTypeBool).
+	cmdr.NewBool().
 		Titles("plain", "p", "plain-mode").
 		Description("In 'Plain Mode', a tag be NOT treated as `key=value` or `key:value`, and modify with the `key`.", ``).
-		DefaultValue(false, "").
-		Group("Mode")
+		ToggleGroup("Mode").
+		AttachTo(cmd)
 
-	cmd.NewFlag(cmdr.OptFlagTypeBool).
+	cmdr.NewBool(true).
 		Titles("tag", "t", "tag-mode").
 		Description("In 'Tag Mode', a tag be treated as `key=value` or `key:value`, and modify with the `key`.", ``).
-		DefaultValue(true, "").
-		Group("Mode")
+		ToggleGroup("Mode").
+		AttachTo(cmd)
 
 }
 
 func attachConsulConnectFlags(cmd cmdr.OptCmd) {
-	cmd.NewFlag(cmdr.OptFlagTypeString).
+	cmdr.NewString(consul.DEFAULT_CONSUL_HOST).Placeholder("HOST:PORT").
 		Titles("addr", "a").
 		Description("Consul ip/host and port: HOST[:PORT] (No leading 'http(s)://')", ``).
-		DefaultValue(consul.DEFAULT_CONSUL_HOST, "HOST[:PORT]").
-		Group("Consul")
-	cmd.NewFlag(cmdr.OptFlagTypeInt).
+		Group("Consul").
+		AttachTo(cmd)
+	cmdr.NewInt(consul.DEFAULT_CONSUL_PORT).Placeholder("PORT").
 		Titles("port", "p").
 		Description("Consul port", ``).
-		DefaultValue(consul.DEFAULT_CONSUL_PORT, "PORT").
-		Group("Consul")
-	cmd.NewFlag(cmdr.OptFlagTypeBool).
+		Group("Consul").
+		AttachTo(cmd)
+	cmdr.NewBool(true).
 		Titles("insecure", "K").
 		Description("Skip TLS host verification", ``).
-		DefaultValue(true, "").
-		Group("Consul")
-	cmd.NewFlag(cmdr.OptFlagTypeString).
+		Group("Consul").
+		AttachTo(cmd)
+	cmdr.NewString("/").Placeholder("ROOT").
 		Titles("prefix", "px").
 		Description("Root key prefix", ``).
-		DefaultValue("/", "ROOT").
-		Group("Consul")
-	cmd.NewFlag(cmdr.OptFlagTypeString).
+		Group("Consul").
+		AttachTo(cmd)
+	cmdr.NewString().Placeholder("FILE").
 		Titles("", "cacert").
 		Description("Consul Client CA cert)", ``).
-		DefaultValue("", "FILE").
-		Group("Consul")
-	cmd.NewFlag(cmdr.OptFlagTypeString).
+		Group("Consul").
+		AttachTo(cmd)
+	cmdr.NewString().Placeholder("FILE").
 		Titles("", "cert").
 		Description("Consul Client cert", ``).
-		DefaultValue("", "FILE").
-		Group("Consul")
-	cmd.NewFlag(cmdr.OptFlagTypeString).
+		Group("Consul").
+		AttachTo(cmd)
+	cmdr.NewString(consul.DEFAULT_CONSUL_SCHEME).Placeholder("SCHEME").
 		Titles("", "scheme").
 		Description("Consul connection protocol", ``).
-		DefaultValue(consul.DEFAULT_CONSUL_SCHEME, "SCHEME").
-		Group("Consul")
-	cmd.NewFlag(cmdr.OptFlagTypeString).
+		Group("Consul").
+		AttachTo(cmd)
+	cmdr.NewString().Placeholder("USERNAME").
 		Titles("username", "u", "user", "usr", "uid").
 		Description("HTTP Basic auth user", ``).
-		DefaultValue("", "USERNAME").
-		Group("Consul")
-	cmd.NewFlag(cmdr.OptFlagTypeString).
+		Group("Consul").AttachTo(cmd)
+	cmdr.NewString().Placeholder("PASSWORD").
 		Titles("password", "pw", "passwd", "pass", "pwd").
 		Description("HTTP Basic auth password", ``).
-		DefaultValue("", "PASSWORD").
 		Group("Consul").
-		ExternalTool(cmdr.ExternalToolPasswordInput)
-
+		ExternalTool(cmdr.ExternalToolPasswordInput).
+		AttachTo(cmd)
 }

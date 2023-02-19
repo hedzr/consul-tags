@@ -4,7 +4,7 @@
 
 package main
 
-import "github.com/hedzr/consul-tags/cli/impl"
+import "github.com/hedzr/consul-tags/cli/consul-tags/impl"
 
 func main() {
 	impl.Entry()
