@@ -8,12 +8,13 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"github.com/hashicorp/consul/api"
-	"github.com/hedzr/cmdr"
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
 	"path"
+
+	"github.com/hashicorp/consul/api"
+	"github.com/hedzr/cmdr"
+	"gopkg.in/yaml.v3"
 )
 
 func Restore() (err error) {
@@ -82,7 +83,7 @@ func readBackupFile(pathname string) (bkup *kvJSON, err error) {
 		err = json.Unmarshal(b, &bkup)
 	case ".yml", ".yaml":
 		// https://github.com/go-yaml/yaml
-		// https://gopkg.in/yaml.v2
+		// https://gopkg.in/yaml.v3
 		err = yaml.Unmarshal(b, &bkup)
 	}
 	return

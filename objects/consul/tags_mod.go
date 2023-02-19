@@ -5,9 +5,10 @@
 package consul
 
 import (
+	"strings"
+
 	"github.com/hedzr/cmdr"
 	"github.com/hedzr/consul-tags/util"
-	"strings"
 )
 
 func ModifyTags(tags, addTags, removeTags []string, delim string, hasClear, isPlainMode, isString bool) []string {

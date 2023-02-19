@@ -6,11 +6,12 @@ package consul
 
 import (
 	"fmt"
-	"github.com/hashicorp/consul/api"
-	"github.com/hedzr/cmdr"
-	"gopkg.in/hedzr/errors.v2"
 	"strconv"
 	"strings"
+
+	"github.com/hashicorp/consul/api"
+	"github.com/hedzr/cmdr"
+	"gopkg.in/hedzr/errors.v3"
 )
 
 const (

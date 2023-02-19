@@ -7,6 +7,7 @@ package consul_test
 import (
 	"fmt"
 	"testing"
+
 	// _ set "github.com/deckarep/golang-set"
 	"github.com/hedzr/consul-tags/objects/consul"
 )

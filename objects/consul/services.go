@@ -6,6 +6,7 @@ package consul
 
 import (
 	"fmt"
+
 	"github.com/hedzr/cmdr"
 )
 

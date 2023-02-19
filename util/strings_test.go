@@ -6,9 +6,10 @@ package util_test
 
 import (
 	"fmt"
-	"github.com/hedzr/consul-tags/util"
 	"strings"
 	"testing"
+
+	"github.com/hedzr/consul-tags/util"
 )
 
 func TestExtract2(t *testing.T) {

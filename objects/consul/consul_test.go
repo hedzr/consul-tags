@@ -6,14 +6,15 @@ package consul
 
 import (
 	"fmt"
-	"github.com/hashicorp/consul/api"
-	"github.com/hedzr/cmdr"
-	"github.com/hedzr/consul-tags/util"
-	"github.com/hedzr/logex"
 	_ "log"
 	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/hashicorp/consul/api"
+	"github.com/hedzr/cmdr"
+	"github.com/hedzr/consul-tags/util"
+	"github.com/hedzr/logex"
 )
 
 func TestQueryConsulService(t *testing.T) {

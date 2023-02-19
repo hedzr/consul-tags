@@ -6,9 +6,10 @@ package util
 
 import (
 	"crypto/x509"
-	"github.com/hedzr/cmdr"
 	"io/ioutil"
 	"os"
+
+	"github.com/hedzr/cmdr"
 )
 
 var certDirectories = []string{

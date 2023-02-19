@@ -6,10 +6,11 @@ package consul
 
 import (
 	"fmt"
-	"github.com/hashicorp/consul/api"
-	"github.com/hedzr/cmdr"
 	"strings"
 	"time"
+
+	"github.com/hashicorp/consul/api"
+	"github.com/hedzr/cmdr"
 )
 
 type testFn func() (bool, error)
@@ -188,7 +189,7 @@ func NodeToAgent(registrar *Registrar, node string) *api.CatalogNode {
 }
 
 func GetConsulApiEntryPoint(registrar *Registrar) *api.CatalogService {
-	var err error = nil
+	var err error
 	registrar.Clients, err = QueryService(SERVICE_CONSUL_API, registrar.FirstClient.Catalog())
 	if err != nil {
 		cmdr.Logger.Fatalf("err: %v", err)

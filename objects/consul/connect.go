@@ -7,12 +7,13 @@ package consul
 import (
 	"crypto/tls"
 	"fmt"
-	"github.com/hashicorp/consul/api"
-	"github.com/hedzr/cmdr"
-	"github.com/hedzr/consul-tags/util"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/hashicorp/consul/api"
+	"github.com/hedzr/cmdr"
+	"github.com/hedzr/consul-tags/util"
 )
 
 func getConnectionFromFlags(prefix string) (client *api.Client, bkup *kvJSON, err error) {

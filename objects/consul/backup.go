@@ -8,13 +8,14 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"github.com/hashicorp/consul/api"
-	"github.com/hedzr/cmdr"
-	"gopkg.in/hedzr/errors.v2"
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"path"
 	"unicode/utf8"
+
+	"github.com/hashicorp/consul/api"
+	"github.com/hedzr/cmdr"
+	"gopkg.in/hedzr/errors.v3"
+	"gopkg.in/yaml.v3"
 )
 
 func Backup() (err error) {
