@@ -18,6 +18,10 @@ Here is a first release for key functionality.
 
 ## News
 
+### v0.7.3
+
+- upgrade deps
+
 ### v0.7.1
 
 - fixed and re-enable docker build
