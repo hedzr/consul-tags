@@ -55,7 +55,7 @@ SERVER_STOP_ARG=server stop
 
 
 goarch=amd64
-W_PKG=github.com/hedzr/cmdr/conf
+W_PKG=github.com/hedzr/cmdr/v2/conf
 TIMESTAMP=$(shell date -u '+%Y-%m-%d_%I:%M:%S%p')
 TIMESTAMP=$(shell date -u '+%Y-%mm-%ddT%HH:%MM:%SS')
 GOVERSION=$(shell go version)
@@ -82,10 +82,10 @@ goarch=$(shell go env GOARCH)
 goos=$(shell go env GOOS)
 defgoarch=$(shell go env GOARCH)
 defgoos=$(shell go env GOOS)
-W_PKG=github.com/hedzr/cmdr/conf
+W_PKG=github.com/hedzr/cmdr/v2/conf
 LDFLAGS := -s -w \
 	-X '$(W_PKG).Buildstamp=$(BUILDTIME)' \
-	-X '$(W_PKG).GIT_HASH=$(GIT_REVISION)' \
+	-X '$(W_PKG).Githash=$(GIT_REVISION)' \
 	-X '$(W_PKG).GoVersion=$(GOVERSION)' \
 	-X '$(W_PKG).Version=$(VERSION)'
 # -X '$(W_PKG).AppName=$(APPNAME)'
@@ -344,10 +344,8 @@ go-build-child:
 	done))
 	$(eval LDFLAGS = -s -w \
 	    -X '$(W_PKG).Buildstamp=$(TIMESTAMP)' \
-	    -X '$(W_PKG).GIT_HASH=$(GIT_REVISION)' \
+	    -X '$(W_PKG).Githash=$(GIT_REVISION)' \
 	    -X '$(W_PKG).GitSummary=$(GIT_SUMMARY)' \
-	    -X '$(W_PKG).GitDesc=$(GIT_DESC)' \
-	    -X '$(W_PKG).BuilderComments=$(BUILDER_COMMENT)' \
 	    -X '$(W_PKG).GoVersion=$(GOVERSION)' \
 	    -X '$(W_PKG).Version=$(VERSION)' )
 	echo "     >  >  Building $(MAINGONAME) -> $(san)$(SUFFIX) v$(VERSION) ..."

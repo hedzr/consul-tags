@@ -21,7 +21,7 @@ env:
   ENABLE_DOCKER: 1
   BUMP_HOMEBREW: 0
   IMAGE_NAME: ""
-  consul_ver: 1.13.1
+  consul_ver: 1.16.2
   #HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
   #GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -29,19 +29,19 @@ jobs:
   test:
     strategy:
       matrix:
-        go-version: [1.18.x] # 1.11.x, 1.12.x, 1.13.x,
+        go-version: [1.22.x] # 1.11.x, 1.12.x, 1.13.x,
         #os: [ubuntu-latest, macos-latest, windows-latest]
         os: [ubuntu-latest]
       fail-fast: false
     runs-on: ${{ matrix.os }}
     steps:
       - name: Install Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v5
         with:
           go-version: ${{ matrix.go-version }}
       - name: Checkout code
-        uses: actions/checkout@v2
-      - uses: actions/cache@v2
+        uses: actions/checkout@v4
+      - uses: actions/cache@v4
         with:
           path: ~/go/pkg/mod
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
@@ -78,14 +78,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Install Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v5
         with:
-          go-version: 1.18.x
+          go-version: 1.22.x
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         #with:
         #  path: ./src/github.com/${{ github.repository }}
-      - uses: actions/cache@v2
+      - uses: actions/cache@v4
         with:
           path: ~/go/pkg/mod
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
@@ -118,9 +118,20 @@ jobs:
           path-to-profile: profile.cov
           parallel: true
 
+  # notifies coveralls that all test jobs are finished
+  finish-coverage:
+    name: Finish Coverage
+    needs: coverage
+    runs-on: ubuntu-latest
+    steps:
+      - uses: shogo82148/actions-goveralls@v1
+        with:
+          parallel-finished: true
+
   release-build:
     needs: coverage
     runs-on: ubuntu-latest
+    permissions: write-all # this is the FIX
     env:
       ACTOR_EMAIL: hedzr@duck.com
       BUMPER_VER: v0.2.0
@@ -128,14 +139,14 @@ jobs:
       BINARIES_ASC: ./bin/binaries.asc
     steps:
       - name: Install Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v5
         with:
-          go-version: 1.18.x
+          go-version: 1.22.x
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         #with:
         #  path: ./src/github.com/${{ github.repository }}
-      - uses: actions/cache@v2
+      - uses: actions/cache@v4
         with:
           path: ~/go/pkg/mod
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
@@ -231,7 +242,7 @@ jobs:
           # export BUILDTIME="$(date -u '+%Y-%m-%d_%H-%M-%S')"
           export BUILDTIME="$(date -Iseconds)"
           # export VERSION="$(grep -E "Version[ \t]+=[ \t]+" doc.go|grep -Eo "[0-9.]+")"
-          export W_PKG="github.com/hedzr/cmdr/conf"
+          export W_PKG="github.com/hedzr/cmdr/v2/conf"
           export LDFLAGS="-s -w \
             -X '$W_PKG.Githash=$GIT_REVISION' \
             -X '$W_PKG.GoVersion=$GOVERSION' \

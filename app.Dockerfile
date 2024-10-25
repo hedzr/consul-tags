@@ -23,7 +23,7 @@ ARG TIMESTAMP=""
 ARG GIT_REVISION=""
 ARG GIT_SUMMARY=""
 ARG GIT_DESC=""
-ARG W_PKG="github.com/hedzr/cmdr/conf"
+ARG W_PKG="github.com/hedzr/cmdr/v2/conf"
 ARG GOPROXY="https://goproxy.cn,direct"
 
 ENV APP_HOME="/var/lib/$APPNAME" TGT=/app \
@@ -79,8 +79,6 @@ RUN export GOVER=$(go version) && \
   -X \"$W_PKG.Buildstamp=${TIMESTAMP}\" \
   -X \"$W_PKG.Githash=${GIT_REVISION}\" \
   -X \"$W_PKG.GitSummary=${GIT_SUMMARY}\" \
-  -X \"$W_PKG.GitDesc=${GIT_DESC}\" \
-  -X \"$W_PKG.BuilderComments=${BUILDER_COMMENT} / docker-build\" \
   -X \"$W_PKG.Version=${VERSION}\" \
   -X \"$W_PKG.GoVersion=${GOVER}\" " && \
   echo "Using APPNAME=$APPNAME VERSION=$VERSION" && \
