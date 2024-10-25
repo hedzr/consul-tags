@@ -1,4 +1,44 @@
 # Changes
 
-- v0.7.3
-  - upgrade deps
+### v0.7.3
+
+- upgrade deps
+
+### v0.7.1
+
+- fixed and re-enable docker build
+
+### v0.7.0
+
+- move to go1.17+
+- upgrade to the newest consul api
+- upgrade [hedzr/cmdr](https://hedzr.com/cmdr) to v1.11.6+
+- a slightly smaller binary file
+
+### v0.6.1
+
+- upgrade to the newest consul api
+- upgrade [hedzr/cmdr](https://hedzr.com/cmdr) to v1.8.0+
+
+### v0.5.9
+
+- fixed release files
+
+### v0.5.7
+
+- update the CI scripts
+- re-enable the docker image on Docker Hub
+
+### v0.5.5
+
+- update all codes with newest deps: cmdr, log, logex, errors.v2, ...
+
+### v0.5.1
+
+- new release has been testing and released soon.
+- it has been rewrote and optimized.
+
+### v0.5.0 is a pre-release
+
+- rewrote by [`cmdr`](https://github.com/hedzr/cmdr)
+- pre-released for v0.5.1 (final)

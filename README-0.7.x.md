@@ -18,11 +18,48 @@ Here is a first release for key functionality.
 
 ## News
 
-- v0.8.0
-  - Move to cmdr.v2 and rewrite app
-  - trying to fix #8
+### v0.7.3
 
-- See [CHANGELOG](https://github.com/hedzr/consul-tags/blob/master/CHANGELOG)
+- upgrade deps
+
+### v0.7.1
+
+- fixed and re-enable docker build
+
+### v0.7.0
+
+- move to go1.17+
+- upgrade to the newest consul api
+- upgrade [hedzr/cmdr](https://hedzr.com/cmdr) to v1.11.6+
+- a slightly smaller binary file
+
+### v0.6.1
+
+- upgrade to the newest consul api
+- upgrade [hedzr/cmdr](https://hedzr.com/cmdr) to v1.8.0+
+
+### v0.5.9
+
+- fixed release files
+
+### v0.5.7
+
+- update the CI scripts
+- re-enable the docker image on Docker Hub
+
+### v0.5.5
+
+- update all codes with newest deps: cmdr, log, logex, errors.v2, ...
+
+### v0.5.1
+
+- new release has been testing and released soon.
+- it has been rewrote and optimized.
+
+### v0.5.0 is a pre-release
+
+- rewrote by [`cmdr`](https://github.com/hedzr/cmdr)
+- pre-released for v0.5.1 (final)
 
 ## Install
 
@@ -67,8 +104,7 @@ go get -u github.com/hedzr/consul-tags
 ./build.sh consul run &
 
 # use the local consul demo instance as default addrress, see also `--addr` in `consul-tags ms --help`
-# export CT_APP_MS_ADDR=localhost:8500
-export ADDR=localhost:8500
+export CT_APP_MS_ADDR=localhost:8500
 
 # list services
 consul-tags ms ls
@@ -83,15 +119,11 @@ consul-tags ms tags mod --name test-redis --add a --add c --add e
 consul-tags ms tags mod --name test-redis --rm a,c,e
 consul-tags ms tags mod --name test-redis --rm a --rm c --rm e
 # by id
-consul-tags ms tags ls --id test-redis-6379
-consul-tags ms tags ls --id test-redis-6380
+consul-tags ms tags ls --id test-redis-1
 
 # toggle master/slave
-# if test-redis nodes are 10.7.13.1,...
-consul-tags ms tags toggle --name test-redis --service-addr 10.7.13.1:6379 --set role=master --reset role=slave
+consul-tags ms tags toggle --name test-redis --addr 10.7.13.1:6379 --set role=master --reset role=slave
 consul-tags ms tags tog --name test-mq --addr 10.7.16.3:5672 --set role=leader,type=ram --reset role=peer,type=disk
-# if test-redis nodes are localhost:6379,...
-consul-tags ms tags toggle --name test-redis --service-addr localhost:6380 --set role=master --reset role=slave
 
 # get commands and sub-commands help
 consul-tags ms -h
@@ -99,42 +131,51 @@ consul-tags ms -h
 consul-tags -h
 ```
 
-Default consul address is `consul.ops.local:8500. But it also can be overridden with environment variable `ADDR` (host:port). Such as:
+Default consul address is `consul.ops.local:8500`, can be overridden with environment variable `CT_APP_MS_ADDR` (host:port), too. Such as:
 
 ```bash
-export ADDR=localhost:8500
+export CT_APP_MS_ADDR=localhost:8500
 consul-tags ms tags ls --name=consul
 # or
-ADDR=localhost:8500 consul-tags --help
+CT_APP_MS_ADDR=localhost:8500 consul-tags --help
 # or
 consul-tags ms tags ls --name=consul --addr 127.0.0.1:8500
 ```
 
-To have a see about which envvars are valid, check out the command's help screen. For example, `ms tags ls --help`:
+### COMMANDS
 
-![image-20241025095348132](https://cdn.jsdelivr.net/gh/hzimg/blog-pics@master/upgit/2024/10/20241025_1729825365.png)
+```bash
+     kv              K/V pair Operations, ...
+     ms, service, m  Microservice Operations, ...
+     help, h         Shows a list of commands or help for one command
+```
 
-In this case, envvar `ADDR` takes effect to the flag `--addr`, and both flags supported envvar also print the tip at its description section.
+### GLOBAL OPTIONS
+
+```bash
+   --help, -h                          show help (default: false)
+   --version, -v                       print the version (default: false)
+```
 
 ## Shell completion
-
-> Since v0.8.0, these addons are still in developing in cmdr.v2
 
 ```bash
 consul-tags gen sh --zsh
 consul-tags gen sh --bash
 ```
 
-## All Commands
+## Thanks
 
-Use cmdr builtin `~~tree` to have a bird's eye:
+my plan is building a suite of devops. consul operations is part of it.
 
-![Screenshot 2024-10-25 at 09.21.43](https://cdn.jsdelivr.net/gh/hzimg/blog-pics@master/upgit/2024/10/20241025_1729819334.png)
+and some repositories are good:
 
+- [colebrumley/consul-kv-backup](https://github.com/colebrumley/consul-kv-backup)
+- <https://github.com/shreyu86/consul-backup>
+- <https://github.com/kailunshi/consul-backup>
 
+### Third-party repos
 
 ## License
 
-Apache 2.0
-
-> Since v0.8.0, we moved license from MIT to Apache 2.0. It's hardly a little bit effects for you, basically.
+MIT/APache 2.0

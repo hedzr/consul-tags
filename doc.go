@@ -6,6 +6,6 @@ package consul_tags
 
 const (
 	AppName    = "consul-tags" //
-	Version    = "0.7.3"       //
-	VersionInt = 0x000703      // using as
+	Version    = "0.8.0"       //
+	VersionInt = 0x000800      // using as
 )
