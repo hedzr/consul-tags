@@ -16,6 +16,8 @@ man*/
 .vagrant/
 local/
 lint.txt
+ref/
+go.work*
 
 ### two executable files
 
