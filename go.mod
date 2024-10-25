@@ -7,7 +7,7 @@ go 1.22.7
 // replace github.com/hedzr/cmdr/v2 => ../../../../../Volumes/VolHack/work/godev/cmdr.v2/cmdr
 
 require (
-	github.com/hashicorp/consul/api v1.26.1
+	github.com/hashicorp/consul/api v1.30.0
 	github.com/hedzr/cmdr-loaders v1.2.0
 	github.com/hedzr/cmdr/v2 v2.0.8
 	github.com/hedzr/store v1.0.18
@@ -17,7 +17,7 @@ require (
 
 require (
 	github.com/armon/go-metrics v0.4.1 // indirect
-	github.com/fatih/color v1.14.1 // indirect
+	github.com/fatih/color v1.16.0 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
@@ -41,7 +41,7 @@ require (
 	github.com/hedzr/store/providers/file v1.0.18 // indirect
 	github.com/hjson/hjson-go/v4 v4.4.0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
-	github.com/mattn/go-isatty v0.0.17 // indirect
+	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/npillmayer/nestext v0.1.3 // indirect
