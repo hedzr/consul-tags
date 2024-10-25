@@ -10,59 +10,66 @@ import (
 	"strings"
 
 	"github.com/hashicorp/consul/api"
-	"github.com/hedzr/cmdr"
+	cmdrv2 "github.com/hedzr/cmdr/v2"
+	"github.com/hedzr/cmdr/v2/pkg/logz"
 	"gopkg.in/hedzr/errors.v3"
 )
 
 const (
-	MS_PREFIX   = "app.ms"
-	TAGS_PREFIX = "app.ms.tags"
+	// MS_PREFIX   = "app.ms"
+	// TAGS_PREFIX = "app.ms.tags"
+
+	MS_PREFIX_V2   = "ms"
+	TAGS_PREFIX_V2 = "ms.tags"
 )
 
 func TagsList() (err error) {
-	registrar := getRegistrar()
-	err = listServiceTags(registrar)
+	registrar := getRegistrarV2()
+	err = listServiceTagsV2(registrar)
 	return
 }
 
 func TagsToggle() error {
-	registrar := getRegistrar()
-	toggleServiceTags(registrar)
+	registrar := getRegistrarV2()
+	toggleServiceTagsV2(registrar)
 	return nil
 }
 
 func Tags() error {
-	registrar := getRegistrar()
+	registrar := getRegistrarV2()
 
 	if true {
 		cc := GetConsulApiEntryPoint(registrar)
-		cmdr.Logger.Debugf("GetConsulApiEntryPoint (via %s): %v\n", cmdr.GetStringP(TAGS_PREFIX, "addr"), cc)
+		// cmdr.Logger.Debugf("GetConsulApiEntryPoint (via %s): %v\n", cmdr.GetStringP(TAGS_PREFIX, "addr"), cc)
+		logz.Debug("GetConsulApiEntryPoint", "addr", registrar.Clients[0].Address, "cc", cc)
 
 		// for i, n := range viper.GetFlagNames() {
 		// 	cmdr.Logger.Debugf("    - flag name %d: %s, value: %v\n", i, n, viper.Get(n))
 		// }
 	}
 
-	return modifyServiceTags(registrar)
+	return modifyServiceTagsV2(registrar)
 }
 
-func listServiceTags(registrar *Registrar) (err error) {
-	name := cmdr.GetStringP(MS_PREFIX, "name")
+func listServiceTagsV2(registrar *Registrar) (err error) {
+	cs2 := cmdrv2.CmdStore().WithPrefix(MS_PREFIX_V2)
+	name := cs2.MustString("name")
 	if name != "" {
-		listServiceTagsByName(registrar, name)
+		listServiceTagsByNameV2(registrar, name)
 		return
 	}
-	id := cmdr.GetStringP(MS_PREFIX, "id")
+	id := cs2.MustString("id")
 	if id != "" {
-		listServiceTagsByID(registrar, id)
+		listServiceTagsByIDV2(registrar, id)
 		return
 	}
 
 	return errors.New("--name ServiceName or --id ServiceID should be specified.")
 }
 
-func listServiceTagsByName(registrar *Registrar, serviceName string) {
-	cmdr.Logger.Debugf("List the tags of service '%s' at '%s'...", serviceName, cmdr.GetStringP(TAGS_PREFIX, "addr"))
+func listServiceTagsByNameV2(registrar *Registrar, serviceName string) {
+	// cmdr.Logger.Debugf("List the tags of service '%s' at '%s'...", serviceName, cmdr.GetStringP(TAGS_PREFIX, "addr"))
+	logz.Debug("List service tags by name...", "name", serviceName, "registrar", registrar)
 
 	WaitForResult(func() (bool, error) {
 		catalogServices, err := QueryService(serviceName, registrar.FirstClient.Catalog())
@@ -87,19 +94,23 @@ func listServiceTagsByName(registrar *Registrar, serviceName string) {
 
 		return true, nil
 	}, func(err error) {
-		cmdr.Logger.Fatalf("err: %v", err)
+		logz.Fatal("QueryService failed", "err", err)
 	})
 }
 
-func listServiceTagsByID(registrar *Registrar, id string) {
-	cmdr.Logger.Debugf("List the tags of service by id '%s'...", id)
+func listServiceTagsByIDV2(registrar *Registrar, id string) {
+	// cmdr.Logger.Debugf("List the tags of service by id '%s'...", id)
+	logz.Debug("List service tags by id...", "id", id, "registrar", registrar)
+
 	as0, err := QueryServiceByID(id, registrar.FirstClient)
 	if err != nil {
-		cmdr.Logger.Fatalf("Error: %v", err)
+		// cmdr.Logger.Fatalf("Error: %v", err)
+		logz.Fatal("QueryServiceByID failed", "err", err)
 	} else {
 		s, err1 := AgentServiceToCatalogService(as0, registrar.FirstClient)
 		if err1 != nil {
-			cmdr.Logger.Fatalf("Error: %v", err)
+			// cmdr.Logger.Fatalf("Error: %v", err)
+			logz.Fatal("AgentServiceToCatalogService failed", "err", err)
 			return
 		}
 
@@ -111,36 +122,40 @@ func listServiceTagsByID(registrar *Registrar, id string) {
 	}
 }
 
-func modifyServiceTags(registrar *Registrar) error {
-	name := cmdr.GetStringP(MS_PREFIX, "name")
+func modifyServiceTagsV2(registrar *Registrar) error {
+	cs2 := cmdrv2.CmdStore().WithPrefix(MS_PREFIX_V2)
+	name := cs2.MustString("name")
 	if name != "" {
-		return modifyServiceTagsByName(registrar, name)
+		return modifyServiceTagsByNameV2(registrar, name)
 	}
-	id := cmdr.GetStringP(MS_PREFIX, "id")
+	id := cs2.MustString("id")
 	if id != "" {
-		return modifyServiceTagsByID(registrar, id)
+		return modifyServiceTagsByIDV2(registrar, id)
 	}
 	return errors.New("--name ServiceName or --id ServiceID should be specified.")
 }
 
-func modifyServiceTagsByName(registrar *Registrar, serviceName string) (err error) {
-	cmdr.Logger.Debugf("Modifying the tags of service '%s'...", serviceName)
+func modifyServiceTagsByNameV2(registrar *Registrar, serviceName string) (err error) {
+	// cmdr.Logger.Debugf("Modifying the tags of service '%s'...", serviceName)
+	logz.Debug("Modifying the tags of service '" + serviceName + "'...")
 
 	var (
 		catalogServices []*api.CatalogService
-		bothMode        = cmdr.GetBoolP(TAGS_PREFIX, "modify.both")
-		metaMode        = cmdr.GetBoolP(TAGS_PREFIX, "modify.meta")
-		plainMode       = cmdr.GetBoolP(TAGS_PREFIX, "modify.plain")
-		stringMode      = cmdr.GetBoolP(TAGS_PREFIX, "modify.string")
-		addList         = cmdr.GetStringSliceP(TAGS_PREFIX, "modify.add")
-		rmList          = cmdr.GetStringSliceP(TAGS_PREFIX, "modify.rm")
-		delim           = cmdr.GetStringP(TAGS_PREFIX, "modify.delim")
-		clearFlag       = cmdr.GetBoolP(TAGS_PREFIX, "modify.clear")
+		cs3             = cmdrv2.CmdStore().WithPrefix(TAGS_PREFIX_V2)
+		bothMode        = cs3.MustBool("modify.both")
+		metaMode        = cs3.MustBool("modify.meta")
+		plainMode       = cs3.MustBool("modify.plain")
+		stringMode      = cs3.MustBool("modify.string")
+		addList         = cs3.MustStringSlice("modify.add")
+		rmList          = cs3.MustStringSlice("modify.remove")
+		delim           = cs3.MustString("modify.delim")
+		clearFlag       = cs3.MustBool("modify.clear")
 	)
 
 	catalogServices, err = QueryService(serviceName, registrar.FirstClient.Catalog())
 	if err != nil {
-		cmdr.Logger.Fatalf("Error: %v", err)
+		// cmdr.Logger.Fatalf("Error: %v", err)
+		logz.Fatal("QueryService failed", "err", err)
 		return
 	}
 
@@ -152,12 +167,12 @@ func modifyServiceTagsByName(registrar *Registrar, serviceName string) (err erro
 		// 节点 cn 的服务表中名为 "consulapi" 的服务
 		as := CatalogNodeGetService(cn, SERVICE_CONSUL_API)
 		// 从 consulapi 指示Agent（也即服务 catalogService 所对应的 Agent），建立一个临时的 Client
-		client := getClient(as.Address, as.Port)
+		client := getClientV2(as.Address, as.Port)
 		agentService := cn.Services[catalogService.ServiceID]
 
 		if bothMode || metaMode == false {
 
-			cmdr.Logger.Debugf("    %s: tags: %v", catalogService.ServiceID, catalogService.ServiceTags)
+			// cmdr.Logger.Debugf("    %s: tags: %v", catalogService.ServiceID, catalogService.ServiceTags)
 
 			tags := ModifyTags(catalogService.ServiceTags, addList, rmList, delim, clearFlag, plainMode, stringMode)
 
@@ -169,7 +184,8 @@ func modifyServiceTagsByName(registrar *Registrar, serviceName string) (err erro
 				Address:           agentService.Address,
 				EnableTagOverride: catalogService.ServiceEnableTagOverride,
 			}); err != nil {
-				cmdr.Logger.Errorf("Error: %v", err)
+				// cmdr.Logger.Errorf("Error: %v", err)
+				logz.Fatal("ServiceRegister failed", "err", err)
 				return
 			}
 
@@ -188,11 +204,11 @@ func modifyServiceTagsByName(registrar *Registrar, serviceName string) (err erro
 
 		if bothMode || metaMode {
 
-			cmdr.Logger.Debugf("    %s: meta: %v", catalogService.ServiceID, catalogService.NodeMeta)
+			// cmdr.Logger.Debugf("    %s: meta: %v", catalogService.ServiceID, catalogService.NodeMeta)
 
 			ModifyNodeMeta(catalogService.NodeMeta, addList, rmList, delim, clearFlag, false, stringMode)
 
-			cmdr.Logger.Debugf("    %s: meta: %v, modified.", catalogService.ServiceID, catalogService.NodeMeta)
+			// cmdr.Logger.Debugf("    %s: meta: %v, modified.", catalogService.ServiceID, catalogService.NodeMeta)
 
 			// catalogService.NodeMeta["id"] = catalogService.ServiceID
 			// catalogService.NodeMeta["addr"] = catalogService.Address
@@ -210,11 +226,13 @@ func modifyServiceTagsByName(registrar *Registrar, serviceName string) (err erro
 				// Datacenter      : registrar.FirstClient.Catalog().Datacenters()[0],
 			}, nil)
 			if err != nil {
-				cmdr.Logger.Errorf("Error: %v", err)
+				// cmdr.Logger.Errorf("Error: %v", err)
+				logz.Fatal("Register failed", "err", err)
 				return
 			}
 
-			cmdr.Logger.Debugf("\twriteMeta: %v", writeMeta)
+			// cmdr.Logger.Debugf("\twriteMeta: %v", writeMeta)
+			logz.Debug("Meta:", "writeMeta", writeMeta)
 		}
 	}
 
@@ -230,37 +248,42 @@ func modifyServiceTagsByName(registrar *Registrar, serviceName string) (err erro
 			}
 			return true, err
 		}, func(err error) {
-			cmdr.Logger.Errorf("err: %v", err)
+			// cmdr.Logger.Errorf("err: %v", err)
+			logz.Fatal("QueryService failed", "err", err)
 		})
 	}
 	return
 }
 
-func modifyServiceTagsByID(registrar *Registrar, id string) (err error) {
-	cmdr.Logger.Debugf("Modifying the tags of service by id '%s'...", id)
+func modifyServiceTagsByIDV2(registrar *Registrar, id string) (err error) {
+	// cmdr.Logger.Debugf("Modifying the tags of service by id '%s'...", id)
+	logz.Debug("Modifying the tags of service by id '" + id + "'...")
 
 	var (
 		as0, sNew  *api.AgentService
 		s          *api.CatalogService
-		addList    = cmdr.GetStringSliceP(TAGS_PREFIX, "modify.add")
-		rmList     = cmdr.GetStringSliceP(TAGS_PREFIX, "modify.rm")
-		delim      = cmdr.GetStringP(TAGS_PREFIX, "modify.delim")
-		clearFlag  = cmdr.GetBoolP(TAGS_PREFIX, "modify.clear")
-		plainMode  = cmdr.GetBoolP(TAGS_PREFIX, "modify.plain")
-		stringMode = cmdr.GetBoolP(TAGS_PREFIX, "modify.string")
+		cs3        = cmdrv2.CmdStore().WithPrefix(TAGS_PREFIX_V2)
+		addList    = cs3.MustStringSlice("modify.add")
+		rmList     = cs3.MustStringSlice("modify.remove")
+		delim      = cs3.MustString("modify.delim")
+		clearFlag  = cs3.MustBool("modify.clear")
+		plainMode  = cs3.MustBool("modify.plain")
+		stringMode = cs3.MustBool("modify.string")
 		// bothMode   = cmdr.GetBoolP(TAGS_PREFIX, "modify.both")
 		// metaMode   = cmdr.GetBoolP(TAGS_PREFIX, "modify.meta")
 	)
 
 	as0, err = QueryServiceByID(id, registrar.FirstClient)
 	if err != nil {
-		cmdr.Logger.Errorf("Error: %v", err)
+		// cmdr.Logger.Errorf("Error: %v", err)
+		logz.Fatal("QueryServiceByID failed", "err", err)
 		return
 	}
 
 	s, err = AgentServiceToCatalogService(as0, registrar.FirstClient)
 	if err != nil {
-		cmdr.Logger.Errorf("Error: %v", err)
+		// cmdr.Logger.Errorf("Error: %v", err)
+		logz.Fatal("AgentServiceToCatalogService failed", "err", err)
 		return
 	}
 
@@ -269,7 +292,7 @@ func modifyServiceTagsByID(registrar *Registrar, id string) (err error) {
 	// 节点 cn 的服务表中名为 "consulapi" 的服务
 	as := CatalogNodeGetService(cn, SERVICE_CONSUL_API)
 	// 从 consulapi 指示Agent（也即服务 s 所对应的 Agent），建立一个临时的 Client
-	client := getClient(as.Address, as.Port)
+	client := getClientV2(as.Address, as.Port)
 	agentService := cn.Services[id]
 
 	tags := ModifyTags(s.ServiceTags, addList, rmList, delim, clearFlag, plainMode, stringMode)
@@ -287,14 +310,15 @@ func modifyServiceTagsByID(registrar *Registrar, id string) (err error) {
 		EnableTagOverride: as0.EnableTagOverride,
 	})
 	if err != nil {
-		cmdr.Logger.Errorf("Error: %v", err)
+		logz.Error("Error:", "err", err)
 		return
 	}
 
 	// 重新载入s的等价物，才能得到新的tags集合，s.ServiceTags并不会自动更新为新集合
 	sNew, err = QueryServiceByID(as0.ID, client)
 	if err != nil {
-		cmdr.Logger.Errorf("Error: %v", err)
+		// cmdr.Logger.Errorf("Error: %v", err)
+		logz.Fatal("QueryServiceByID failed", "err", err)
 		return
 	}
 
@@ -308,59 +332,65 @@ func modifyServiceTagsByID(registrar *Registrar, id string) (err error) {
 	return
 }
 
-func toggleServiceTags(registrar *Registrar) {
-	name := cmdr.GetStringP(MS_PREFIX, "name")
+func toggleServiceTagsV2(registrar *Registrar) {
+	cs2 := cmdrv2.CmdStore().WithPrefix(MS_PREFIX_V2)
+	name := cs2.MustString("name")
 	if name != "" {
-		toggleServiceTagsByName(registrar, name)
+		toggleServiceTagsByNameV2(registrar, name)
 		return
 	}
-	id := cmdr.GetStringP(MS_PREFIX, "id")
+	id := cs2.MustString("id")
 	if id != "" {
-		cmdr.Logger.Fatalf("toggle tags can be applied with --name but --id")
+		logz.Fatal("toggle tags can be applied with --name, rather --id")
 		return
 	}
 }
 
-func toggleServiceTagsByName(registrar *Registrar, name string) {
+func toggleServiceTagsByNameV2(registrar *Registrar, name string) {
 	var (
 		theServices []*api.CatalogService
 		err         error
-		masterTag   = cmdr.GetStringSliceP(TAGS_PREFIX, "toggle.set")
-		slaveTag    = cmdr.GetStringSliceP(TAGS_PREFIX, "toggle.ueset")
-		addresses   = cmdr.GetStringP(TAGS_PREFIX, "toggle.address")
-		delim       = cmdr.GetStringP(TAGS_PREFIX, "toogle.delim")
-		clearFlag   = cmdr.GetBoolP(TAGS_PREFIX, "toggle.clear")
-		plainMode   = cmdr.GetBoolP(TAGS_PREFIX, "modify.plain")
-		stringMode  = cmdr.GetBoolP(TAGS_PREFIX, "modify.string")
+		cs3         = cmdrv2.CmdStore().WithPrefix(TAGS_PREFIX_V2)
+		masterTag   = cs3.MustStringSlice("toggle.set")
+		slaveTag    = cs3.MustStringSlice("toggle.unset")
+		addresses   = cs3.MustString("toggle.service-addr")
+		delim       = cs3.MustString("toogle.delim")
+		clearFlag   = cs3.MustBool("toggle.clear")
+		plainMode   = cs3.MustBool("modify.plain")
+		stringMode  = cs3.MustBool("modify.string")
 		// bothMode   = cmdr.GetBoolP(TAGS_PREFIX, "modify.both")
 		// metaMode   = cmdr.GetBoolP(TAGS_PREFIX, "modify.meta")
 	)
 
-	cmdr.Logger.Debugf("Toggle the tags of service '%s'...", name)
+	// cmdr.Logger.Debugf("Toggle the tags of service '%s'...", name)
+	logz.Debug("Toggle the tags of service '" + name + "'...")
+
 	theServices, err = QueryService(name, registrar.FirstClient.Catalog())
 	if err != nil {
-		cmdr.Logger.Fatalf("Error: %v", err)
+		// cmdr.Logger.Fatalf("Error: %v", err)
+		logz.Fatal("QueryService failed", "err", err)
 	} else {
 		newMaster := strings.Split(addresses, ":")
 		newMasterPort := 0
 		if len(newMaster) > 1 {
 			newMasterPort, err = strconv.Atoi(newMaster[1])
 			if err != nil {
-				cmdr.Logger.Fatalf("Error: %v", err)
+				// cmdr.Logger.Fatalf("Error: %v", err)
+				logz.Fatal("Atoi failed", "err", err)
 				return
 			}
 		}
 		if len(newMaster) == 0 {
-			cmdr.Logger.Fatalf("--address to specify the master ip:port, it's NOT optional.")
+			logz.Fatal("--address to specify the master ip:port, it's NOT optional.")
 			return
 		}
 		// if len(masterTag) == 1 {
 		if len(masterTag) == 0 {
-			cmdr.Logger.Fatalf("--set to specify the master tag, it's NOT optional.")
+			logz.Fatal("--set to specify the master tag, it's NOT optional.")
 			return
 		}
 		if len(slaveTag) == 0 {
-			cmdr.Logger.Fatalf("--reset to specify the slave tag, it's NOT optional.")
+			logz.Fatal("--reset to specify the slave tag, it's NOT optional.")
 			return
 		}
 
@@ -387,8 +417,9 @@ func toggleServiceTagsByName(registrar *Registrar, name string) {
 
 			cn := NodeToAgent(registrar, s.Node)
 			as := CatalogNodeGetService(cn, SERVICE_CONSUL_API)
-			cmdr.Logger.Debugf("    %s=%v\n", SERVICE_CONSUL_API, as)
-			client := getClient(as.Address, as.Port)
+			// cmdr.Logger.Debugf("    %s=%v\n", SERVICE_CONSUL_API, as)
+			logz.Debug("CatalogNodeGetService:", "API", SERVICE_CONSUL_API, "as", as)
+			client := getClientV2(as.Address, as.Port)
 			agentService := cn.Services[s.ServiceID]
 
 			err = client.Agent().ServiceRegister(&api.AgentServiceRegistration{
@@ -400,7 +431,8 @@ func toggleServiceTagsByName(registrar *Registrar, name string) {
 				EnableTagOverride: s.ServiceEnableTagOverride,
 			})
 			if err != nil {
-				cmdr.Logger.Fatalf("Error: %v", err)
+				// cmdr.Logger.Fatalf("Error: %v", err)
+				logz.Fatal("ServiceRegister failed", "err", err)
 				return
 			}
 
@@ -426,7 +458,8 @@ func toggleServiceTagsByName(registrar *Registrar, name string) {
 			// 重新载入s的等价物，才能得到新的tags集合，s.ServiceTags并不会自动更新为新集合
 			sNew, err := QueryServiceByID(s.ServiceID, client)
 			if err != nil {
-				cmdr.Logger.Fatalf("Error: %v", err)
+				// cmdr.Logger.Fatalf("Error: %v", err)
+				logz.Fatal("QueryServiceByID failed", "err", err)
 				return
 			}
 
@@ -441,15 +474,17 @@ func toggleServiceTagsByName(registrar *Registrar, name string) {
 	}
 }
 
-func getRegistrar() *Registrar {
-	addr := cmdr.GetStringP(TAGS_PREFIX, "addr")
+func getRegistrarV2() *Registrar {
+	cs2 := cmdrv2.CmdStore().WithPrefix(MS_PREFIX_V2)
+	addr := cs2.MustString("addr")
 	if !strings.Contains(addr, ":") {
-		addr = fmt.Sprintf("%v:%v", addr, cmdr.GetIntP(TAGS_PREFIX, "port"))
+		addr = fmt.Sprintf("%v:%v", addr, cs2.MustInt("port"))
 	}
-	return getRegistrarImpl(addr, cmdr.GetStringP(TAGS_PREFIX, "scheme"))
+	scheme := cs2.MustString("scheme")
+	return getRegistrarImplV2(addr, scheme)
 }
 
-func getRegistrarImpl(addr, scheme string) *Registrar {
+func getRegistrarImplV2(addr, scheme string) *Registrar {
 	return &Registrar{
 		Base: Base{
 			FirstClient: MakeClientWithConfig(func(clientConfig *api.Config) {
@@ -462,13 +497,49 @@ func getRegistrarImpl(addr, scheme string) *Registrar {
 	}
 }
 
-func getClient(host string, port int) *api.Client {
-	return getClientImpl(host, port, cmdr.GetStringP(TAGS_PREFIX, "scheme"))
+func getClientV2(host string, port int) *api.Client {
+	cs2 := cmdrv2.CmdStore().WithPrefix(MS_PREFIX_V2)
+	scheme := cs2.MustString("scheme")
+	return getClientImplV2(host, port, scheme)
 }
 
-func getClientImpl(host string, port int, scheme string) *api.Client {
+func getClientImplV2(host string, port int, scheme string) *api.Client {
 	return MakeClientWithConfig(func(clientConfig *api.Config) {
 		clientConfig.Address = host + ":" + strconv.Itoa(port)
 		clientConfig.Scheme = scheme
 	})
 }
+
+//
+
+// func getRegistrar() *Registrar {
+// 	addr := cmdr.GetStringP(TAGS_PREFIX, "addr")
+// 	if !strings.Contains(addr, ":") {
+// 		addr = fmt.Sprintf("%v:%v", addr, cmdr.GetIntP(TAGS_PREFIX, "port"))
+// 	}
+// 	return getRegistrarImpl(addr, cmdr.GetStringP(TAGS_PREFIX, "scheme"))
+// }
+//
+// func getRegistrarImpl(addr, scheme string) *Registrar {
+// 	return &Registrar{
+// 		Base: Base{
+// 			FirstClient: MakeClientWithConfig(func(clientConfig *api.Config) {
+// 				clientConfig.Address = addr
+// 				clientConfig.Scheme = scheme
+// 			}),
+// 		},
+// 		Clients:       nil,
+// 		CurrentClient: nil,
+// 	}
+// }
+//
+// func getClient(host string, port int) *api.Client {
+// 	return getClientImpl(host, port, cmdr.GetStringP(TAGS_PREFIX, "scheme"))
+// }
+//
+// func getClientImpl(host string, port int, scheme string) *api.Client {
+// 	return MakeClientWithConfig(func(clientConfig *api.Config) {
+// 		clientConfig.Address = host + ":" + strconv.Itoa(port)
+// 		clientConfig.Scheme = scheme
+// 	})
+// }

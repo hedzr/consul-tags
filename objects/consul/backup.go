@@ -8,12 +8,13 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"path"
 	"unicode/utf8"
 
 	"github.com/hashicorp/consul/api"
-	"github.com/hedzr/cmdr"
+	cmdrv2 "github.com/hedzr/cmdr/v2"
+	"github.com/hedzr/cmdr/v2/pkg/logz"
 	"gopkg.in/hedzr/errors.v3"
 	"gopkg.in/yaml.v3"
 )
@@ -23,28 +24,29 @@ func Backup() (err error) {
 		client       *api.Client
 		backupResult *kvJSON
 		output       string
-		prefix       = "app.kv"
+		prefixV2     = "kv"
 	)
 
-	output = cmdr.GetStringP(prefix, "backup.output")
+	cs := cmdrv2.CmdStore().WithPrefix(prefixV2)
+	output = cs.MustString("backup.output")
 	if len(output) == 0 {
-		cmdr.Logger.Errorf("ERROR: need -o output-file")
+		logz.Error("ERROR: need -o output-file")
 		return errors.New("Need -o output-file")
 	}
 
 	// Get KV client
-	client, backupResult, err = getConnectionFromFlags(prefix)
+	client, backupResult, err = getConnectionFromFlags(prefixV2)
 	if err != nil {
 		return
 	}
 
-	cmdr.Logger.Debugf("Connected: %v", client)
+	logz.Debug("Connected: ", "client", client)
 	kv := client.KV()
 
 	// Dump all
-	pairs, _, err := kv.List(cmdr.GetStringP(prefix, "prefix"), &api.QueryOptions{})
+	pairs, _, err := kv.List(cs.MustString("prefix"), &api.QueryOptions{})
 	if err != nil {
-		cmdr.Logger.Fatalf("ERROR: %v", err)
+		logz.Fatal("ERROR:", "err", err)
 		return
 	}
 	bkup := map[string]valueEnc{}
@@ -59,7 +61,7 @@ func Backup() (err error) {
 	}
 	backupResult.Values = bkup
 
-	cmdr.Logger.Debugf("Dumping to %s", output)
+	logz.Debug("Dumping to file", "output", output)
 	// Send results to outfile (if defined) or stdout
 	dumpOutput(output, backupResult)
 
@@ -74,24 +76,24 @@ func dumpOutput(pathname string, bkup *kvJSON) {
 		case ".json":
 			outBytes, err := json.Marshal(bkup)
 			if err != nil {
-				cmdr.Logger.Fatalf("Error: %v", err)
+				logz.Fatal("Error:", "err", err)
 			}
-			if err = ioutil.WriteFile(pathname, outBytes, 0664); err != nil {
-				cmdr.Logger.Fatalf("Error: %v", err)
+			if err = os.WriteFile(pathname, outBytes, 0664); err != nil {
+				logz.Fatal("Error:", "err", err)
 			}
 		case ".yml", ".yaml":
 			outBytes, err := yaml.Marshal(bkup)
 			if err != nil {
-				cmdr.Logger.Fatalf("Error: %v", err)
+				logz.Fatal("Error:", "err", err)
 			}
-			if err = ioutil.WriteFile(pathname, outBytes, 0664); err != nil {
-				cmdr.Logger.Fatalf("Error: %v", err)
+			if err = os.WriteFile(pathname, outBytes, 0664); err != nil {
+				logz.Fatal("Error:", "err", err)
 			}
 		}
 	} else {
 		outBytes, err := json.MarshalIndent(bkup, "", "  ")
 		if err != nil {
-			cmdr.Logger.Fatalf("Error: %v", err)
+			logz.Fatal("Error:", "err", err)
 		}
 		fmt.Printf("%s\n", string(outBytes))
 	}

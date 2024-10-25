@@ -9,7 +9,7 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/hedzr/cmdr"
+	"github.com/hedzr/cmdr/v2/pkg/logz"
 )
 
 var certDirectories = []string{
@@ -23,18 +23,18 @@ var certDirectories = []string{
 func AddCACert(path string, roots *x509.CertPool) *x509.CertPool {
 	f, err := os.Open(path)
 	if err != nil {
-		cmdr.Logger.Fatalf("Could not open CA cert: %v", err)
+		logz.Fatal("Could not open CA cert:", "err", err)
 		return roots
 	}
 
 	fBytes, err := ioutil.ReadAll(f)
 	if err != nil {
-		cmdr.Logger.Fatalf("Failed to read CA cert: %v", err)
+		logz.Fatal("Failed to read CA cert:", "err", err)
 		return roots
 	}
 
 	if !roots.AppendCertsFromPEM(fBytes) {
-		cmdr.Logger.Fatalf("Could not add CA to CA pool: %v", err)
+		logz.Fatal("Could not add CA to CA pool:", "err", err)
 	}
 	return roots
 }
@@ -50,7 +50,7 @@ func LoadSystemRootCAs() (systemRoots *x509.CertPool, err error) {
 		for _, fi := range fis {
 			data, err := ioutil.ReadFile(directory + "/" + fi.Name())
 			if err == nil && systemRoots.AppendCertsFromPEM(data) {
-				cmdr.Logger.Debugf("Loaded Root CA %s", fi.Name())
+				logz.Debug("Loaded Root CA", "name", fi.Name())
 			}
 		}
 	}

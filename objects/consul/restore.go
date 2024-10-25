@@ -13,7 +13,8 @@ import (
 	"path"
 
 	"github.com/hashicorp/consul/api"
-	"github.com/hedzr/cmdr"
+	cmdrv2 "github.com/hedzr/cmdr/v2"
+	"github.com/hedzr/cmdr/v2/pkg/logz"
 	"gopkg.in/yaml.v3"
 )
 
@@ -33,7 +34,8 @@ func Restore() (err error) {
 	kv := client.KV()
 
 	// Get backup JSON from file
-	bkup, err = readBackupFile(cmdr.GetStringP(prefix, "input"))
+	cs := cmdrv2.CmdStore().WithPrefix(prefix)
+	bkup, err = readBackupFile(cs.MustString("input"))
 	if err != nil {
 		return fmt.Errorf("error getting data: %v", err)
 	}
@@ -53,7 +55,7 @@ func Restore() (err error) {
 			return fmt.Errorf("unknown encoding '%v' for key '%s'", ve.Encoding, k)
 		}
 
-		cmdr.Logger.Debugf("Restoring key '%s'", k)
+		logz.Debug("Restoring key ...", "key", k)
 		if _, err := kv.Put(&api.KVPair{
 			Key:   k,
 			Value: []byte(v),

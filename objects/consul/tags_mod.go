@@ -7,29 +7,34 @@ package consul
 import (
 	"strings"
 
-	"github.com/hedzr/cmdr"
+	"github.com/hedzr/cmdr/v2/pkg/logz"
+
 	"github.com/hedzr/consul-tags/util"
 )
 
-func ModifyTags(tags, addTags, removeTags []string, delim string, hasClear, isPlainMode, isString bool) []string {
+func ModifyTags(tags, addTags, removeTags []string, delim string, hasClear, isPlainMode, isStringMode bool) []string {
 	if hasClear {
 		tags = make([]string, 0)
 	}
 
 	if !isPlainMode {
-		cmdr.Logger.Debugf("    --- in ext mode")
+		logz.Debug("    --- in ext mode")
 		list := make([]string, 0)
 		for _, t := range removeTags {
-			if isString {
-				list = append(list, t)
+			if isStringMode {
+				if t != "" {
+					list = append(list, t)
+				}
 			} else {
 				for _, t1 := range strings.Split(t, ",") {
-					list = append(list, t1)
+					if t1 != "" {
+						list = append(list, t1)
+					}
 				}
 			}
 		}
 		for _, t := range list {
-			cmdr.Logger.Debugf("    --- slice: erasing %s", t)
+			logz.Debug("    --- slice: erasing %s", t)
 			for {
 				erased := false
 				for i, v := range tags {
@@ -37,7 +42,7 @@ func ModifyTags(tags, addTags, removeTags []string, delim string, hasClear, isPl
 					ta := strings.Split(t, delim)
 					if len(ta) > 0 && strings.EqualFold(va[0], ta[0]) {
 						tags = util.SliceEraseByIndex(tags, i)
-						cmdr.Logger.Debugf("      - slice: erased '%s%s...'", va[0], delim)
+						logz.Debug("      - slice: tags erased", "0", va[0], "delim", delim)
 						erased = true
 						break
 					}
@@ -49,23 +54,27 @@ func ModifyTags(tags, addTags, removeTags []string, delim string, hasClear, isPl
 		}
 		list = make([]string, 0)
 		for _, t := range addTags {
-			if isString {
-				list = append(list, t)
+			if isStringMode {
+				if t != "" {
+					list = append(list, t)
+				}
 			} else {
 				for _, t1 := range strings.Split(t, ",") {
-					list = append(list, t1)
+					if t1 != "" {
+						list = append(list, t1)
+					}
 				}
 			}
 		}
 		for _, t := range list {
-			cmdr.Logger.Debugf("    --- slice: appending %s", t)
+			logz.Debug("    --- slice: appending tags", "tag", t)
 			matched := false
 			for i, v := range tags {
 				va := strings.Split(v, delim)
 				ta := strings.Split(t, delim)
 				if len(va) > 0 && strings.EqualFold(strings.TrimSpace(va[0]), strings.TrimSpace(ta[0])) {
 					tags[i] = t
-					cmdr.Logger.Debugf("      - slice: appended '%s%s...'", va[0], delim)
+					logz.Debug("      - slice: tags appended", "t", va[0], "delim", delim)
 					matched = true
 				}
 			}
@@ -89,11 +98,11 @@ func ModifyTags(tags, addTags, removeTags []string, delim string, hasClear, isPl
 func ModifyNodeMeta(tags map[string]string, addTags, removeTags []string, delim string, hasClear, isPlainMode, isString bool) map[string]string {
 	if hasClear {
 		tags = make(map[string]string, 0)
-		cmdr.Logger.Infof("      - slice: cleared.")
+		logz.Info("      - slice: cleared.")
 	}
 
 	if !isPlainMode {
-		cmdr.Logger.Debugf("    --- in ext mode")
+		logz.Debug("    --- in ext mode")
 		list := make([]string, 0)
 		for _, t := range removeTags {
 			if isString {
@@ -105,13 +114,13 @@ func ModifyNodeMeta(tags map[string]string, addTags, removeTags []string, delim 
 			}
 		}
 		for _, t := range list {
-			cmdr.Logger.Debugf("    --- slice: erasing %s", t)
+			logz.Debug("    --- slice: erasing tags", "tag", t)
 			for {
 				ta := strings.Split(t, delim)
 				if ta[0] != "" {
 					delete(tags, ta[0])
 				}
-				cmdr.Logger.Infof("      - slice: erased '%s%s...'", ta[0], delim)
+				logz.Debug("      - slice: tags erased '%s%s...'", "0", ta[0], "delim", delim)
 			}
 		}
 		list = make([]string, 0)
@@ -125,12 +134,12 @@ func ModifyNodeMeta(tags map[string]string, addTags, removeTags []string, delim 
 			}
 		}
 		for _, t := range list {
-			cmdr.Logger.Debugf("    --- slice: appending %s", t)
+			logz.Debug("    --- slice: appending tags", "tag", t)
 			ta := strings.Split(t, delim)
 			tak := ta[0]
 			tav := strings.Join(ta[1:], delim)
 			tags[tak] = tav
-			cmdr.Logger.Debugf("      - slice: set/appended '%s%s...'", tak, delim)
+			logz.Debug("      - slice: tags set/appended", "0", tak, "delim", delim)
 		}
 
 	} else {

@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/consul/api"
-	"github.com/hedzr/cmdr"
+	"github.com/hedzr/cmdr/v2/pkg/logz"
 )
 
 type testFn func() (bool, error)
@@ -71,7 +71,7 @@ func MakeClientWithConfig(cb1 configCallback) *api.Client {
 	// Create client
 	client, err := api.NewClient(conf)
 	if err != nil {
-		cmdr.Logger.Fatalf("err: %v", err)
+		logz.Fatal("something's wrong", "err", err)
 	}
 
 	return client // , server
@@ -85,11 +85,11 @@ func QueryService(name string, catalog *api.Catalog) ([]*api.CatalogService, err
 	}
 
 	if meta.LastIndex == 0 {
-		return nil, fmt.Errorf("Bad: %v", meta)
+		return nil, fmt.Errorf("bad: %v", meta)
 	}
 
 	if len(services) == 0 {
-		return nil, fmt.Errorf("Bad: %v", services)
+		return nil, fmt.Errorf("bad: %v", services)
 	}
 	return services, nil
 }
@@ -109,9 +109,9 @@ func QueryServiceByID(serviceID string, client *api.Client) (as *api.AgentServic
 			}
 		}
 
-		return false, fmt.Errorf("Bad: cannot found service '#%s'", serviceID)
+		return false, fmt.Errorf("bad: cannot found service '#%s'", serviceID)
 	}, func(err error) {
-		cmdr.Logger.Fatalf("err: %v", err)
+		logz.Fatal("something's wrong", "err", err)
 	})
 	return res, nil
 }
@@ -130,9 +130,9 @@ func AgentServiceToCatalogService(as *api.AgentService, client *api.Client) (res
 				return true, nil
 			}
 		}
-		return false, fmt.Errorf("Bad: cannot found service '#%s' inside catalog", as.ID)
+		return false, fmt.Errorf("bad: cannot found service '#%s' inside catalog", as.ID)
 	}, func(err error) {
-		cmdr.Logger.Fatalf("err: %v", err)
+		logz.Fatal("something's wrong", "err", err)
 	})
 	return
 }
@@ -149,9 +149,9 @@ func CatalogNodeGetService(cn *api.CatalogNode, serviceName string) *api.AgentSe
 func NodeToAgent(registrar *Registrar, node string) *api.CatalogNode {
 	cn, qm, err := registrar.FirstClient.Catalog().Node(node, nil)
 	if err != nil {
-		cmdr.Logger.Fatalf("Error: %v", err)
+		logz.Fatal("something's wrong", "err", err)
 	} else {
-		cmdr.Logger.Debugf("    QueryMeta: %v", qm)
+		logz.Debug("    QueryMeta:", "qm", qm)
 		// cn.Node.Address
 		return cn
 	}
@@ -166,24 +166,24 @@ func NodeToAgent(registrar *Registrar, node string) *api.CatalogNode {
 		}
 
 		if meta.LastIndex == 0 {
-			return false, fmt.Errorf("Bad: %v", meta)
+			return false, fmt.Errorf("bad: %v", meta)
 		}
 
 		if len(nodes) == 0 {
-			return false, fmt.Errorf("Bad: %v", nodes)
+			return false, fmt.Errorf("bad: %v", nodes)
 		}
 
 		if _, ok := nodes[0].TaggedAddresses["wan"]; !ok {
-			return false, fmt.Errorf("Bad: %v\n", nodes[0])
+			return false, fmt.Errorf("bad: %v\n", nodes[0])
 		}
 
 		for _, node := range nodes {
-			cmdr.Logger.Debugf("    Nodes[i]: %v", node)
+			logz.Debug("    Nodes[i]: ", "node", node)
 		}
 
 		return true, nil
 	}, func(err error) {
-		cmdr.Logger.Fatalf("err: %v", err)
+		logz.Fatal("something's wrong", "err", err)
 	})
 	return nil
 }
@@ -192,11 +192,11 @@ func GetConsulApiEntryPoint(registrar *Registrar) *api.CatalogService {
 	var err error
 	registrar.Clients, err = QueryService(SERVICE_CONSUL_API, registrar.FirstClient.Catalog())
 	if err != nil {
-		cmdr.Logger.Fatalf("err: %v", err)
+		logz.Fatal("something's wrong", "err", err)
 		return nil
 	} else {
 		// registrarId, registrarAddr, registrarPort := consulapi[0].ServiceID, consulapi[0].Address, consulapi[0].ServicePort
-		cmdr.Logger.Tracef("    Using '%s', %s:%d", registrar.Clients[0].ServiceID, registrar.Clients[0].Address, registrar.Clients[0].ServicePort)
+		logz.Trace(fmt.Sprintf("    Using '%s', %s:%d", registrar.Clients[0].ServiceID, registrar.Clients[0].Address, registrar.Clients[0].ServicePort))
 		registrar.CurrentClient = registrar.Clients[0]
 		return registrar.CurrentClient
 	}
@@ -211,11 +211,11 @@ func GetConsulApiEntryPoint(registrar *Registrar) *api.CatalogService {
 func findConsulApi(base *Base) []*api.CatalogService {
 	services, err := QueryService(SERVICE_CONSUL_API, base.FirstClient.Catalog())
 	if err != nil {
-		cmdr.Logger.Fatalf("err: %v", err)
+		logz.Fatal("something's wrong", "err", err)
 		return nil
 	} else {
 		for i, service := range services {
-			cmdr.Logger.Tracef("    Service[%d, %s]: %v\n", i, service.ServiceID, service)
+			logz.Trace(fmt.Sprintf("    Service[%d, %s]: %v\n", i, service.ServiceID, service))
 		}
 		return services
 	}
