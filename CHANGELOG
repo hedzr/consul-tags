@@ -1,5 +1,12 @@
 # Changes
 
+### v0.8.3
+
+- upgrade deps
+- security patches
+- move to cmdr v2.1.0
+- upgrade minimal toolchain to go1.23.7
+
 ### v0.7.3
 
 - upgrade deps
