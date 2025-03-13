@@ -20,7 +20,7 @@ func ServiceList() (err error) {
 func listServices(registrar *Registrar) error {
 	// cmdr.Logger.Debugf("List the services at '%s'...", cmdr.GetStringP(TAGS_PREFIX, "addr"))
 
-	cs2 := cmdrv2.CmdStore().WithPrefix(MS_PREFIX_V2)
+	cs2 := cmdrv2.Store().WithPrefix(MS_PREFIX_V2)
 	logz.Print("List the services...", "addr", cs2.MustString("addr"))
 
 	WaitForResult(func() (bool, error) {

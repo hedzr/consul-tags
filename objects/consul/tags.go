@@ -52,7 +52,7 @@ func Tags() error {
 }
 
 func listServiceTagsV2(registrar *Registrar) (err error) {
-	cs2 := cmdrv2.CmdStore().WithPrefix(MS_PREFIX_V2)
+	cs2 := cmdrv2.Store().WithPrefix(MS_PREFIX_V2)
 	name := cs2.MustString("name")
 	if name != "" {
 		listServiceTagsByNameV2(registrar, name)
@@ -123,7 +123,7 @@ func listServiceTagsByIDV2(registrar *Registrar, id string) {
 }
 
 func modifyServiceTagsV2(registrar *Registrar) error {
-	cs2 := cmdrv2.CmdStore().WithPrefix(MS_PREFIX_V2)
+	cs2 := cmdrv2.Store().WithPrefix(MS_PREFIX_V2)
 	name := cs2.MustString("name")
 	if name != "" {
 		return modifyServiceTagsByNameV2(registrar, name)
@@ -141,7 +141,7 @@ func modifyServiceTagsByNameV2(registrar *Registrar, serviceName string) (err er
 
 	var (
 		catalogServices []*api.CatalogService
-		cs3             = cmdrv2.CmdStore().WithPrefix(TAGS_PREFIX_V2)
+		cs3             = cmdrv2.Store().WithPrefix(TAGS_PREFIX_V2)
 		bothMode        = cs3.MustBool("modify.both")
 		metaMode        = cs3.MustBool("modify.meta")
 		plainMode       = cs3.MustBool("modify.plain")
@@ -262,7 +262,7 @@ func modifyServiceTagsByIDV2(registrar *Registrar, id string) (err error) {
 	var (
 		as0, sNew  *api.AgentService
 		s          *api.CatalogService
-		cs3        = cmdrv2.CmdStore().WithPrefix(TAGS_PREFIX_V2)
+		cs3        = cmdrv2.Store().WithPrefix(TAGS_PREFIX_V2)
 		addList    = cs3.MustStringSlice("modify.add")
 		rmList     = cs3.MustStringSlice("modify.remove")
 		delim      = cs3.MustString("modify.delim")
@@ -333,7 +333,7 @@ func modifyServiceTagsByIDV2(registrar *Registrar, id string) (err error) {
 }
 
 func toggleServiceTagsV2(registrar *Registrar) {
-	cs2 := cmdrv2.CmdStore().WithPrefix(MS_PREFIX_V2)
+	cs2 := cmdrv2.Store().WithPrefix(MS_PREFIX_V2)
 	name := cs2.MustString("name")
 	if name != "" {
 		toggleServiceTagsByNameV2(registrar, name)
@@ -350,7 +350,7 @@ func toggleServiceTagsByNameV2(registrar *Registrar, name string) {
 	var (
 		theServices []*api.CatalogService
 		err         error
-		cs3         = cmdrv2.CmdStore().WithPrefix(TAGS_PREFIX_V2)
+		cs3         = cmdrv2.Store().WithPrefix(TAGS_PREFIX_V2)
 		masterTag   = cs3.MustStringSlice("toggle.set")
 		slaveTag    = cs3.MustStringSlice("toggle.unset")
 		addresses   = cs3.MustString("toggle.service-addr")
@@ -475,7 +475,7 @@ func toggleServiceTagsByNameV2(registrar *Registrar, name string) {
 }
 
 func getRegistrarV2() *Registrar {
-	cs2 := cmdrv2.CmdStore().WithPrefix(MS_PREFIX_V2)
+	cs2 := cmdrv2.Store().WithPrefix(MS_PREFIX_V2)
 	addr := cs2.MustString("addr")
 	if !strings.Contains(addr, ":") {
 		addr = fmt.Sprintf("%v:%v", addr, cs2.MustInt("port"))
@@ -498,7 +498,7 @@ func getRegistrarImplV2(addr, scheme string) *Registrar {
 }
 
 func getClientV2(host string, port int) *api.Client {
-	cs2 := cmdrv2.CmdStore().WithPrefix(MS_PREFIX_V2)
+	cs2 := cmdrv2.Store().WithPrefix(MS_PREFIX_V2)
 	scheme := cs2.MustString("scheme")
 	return getClientImplV2(host, port, scheme)
 }

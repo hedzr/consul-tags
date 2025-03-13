@@ -27,7 +27,7 @@ func Backup() (err error) {
 		prefixV2     = "kv"
 	)
 
-	cs := cmdrv2.CmdStore().WithPrefix(prefixV2)
+	cs := cmdrv2.Store().WithPrefix(prefixV2)
 	output = cs.MustString("backup.output")
 	if len(output) == 0 {
 		logz.Error("ERROR: need -o output-file")

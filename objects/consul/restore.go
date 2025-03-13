@@ -34,7 +34,7 @@ func Restore() (err error) {
 	kv := client.KV()
 
 	// Get backup JSON from file
-	cs := cmdrv2.CmdStore().WithPrefix(prefix)
+	cs := cmdrv2.Store().WithPrefix(prefix)
 	bkup, err = readBackupFile(cs.MustString("input"))
 	if err != nil {
 		return fmt.Errorf("error getting data: %v", err)

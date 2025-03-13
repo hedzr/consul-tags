@@ -25,7 +25,7 @@ func getConnectionFromFlags(prefix string) (client *api.Client, bkup *kvJSON, er
 	// Create a TLS config to be populated with flag-defined certs if applicable
 	tlsConf := &tls.Config{}
 
-	cs := cmdrv2.CmdStore().WithPrefix(prefix)
+	cs := cmdrv2.Store().WithPrefix(prefix)
 
 	// Set scheme and address:port
 	config.Scheme = cs.MustString("scheme")
