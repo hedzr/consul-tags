@@ -1,6 +1,6 @@
 module github.com/hedzr/consul-tags
 
-go 1.23.7
+go 1.24.0
 
 // replace github.com/hedzr/common v0.0.0 => ../common
 
@@ -47,9 +47,9 @@ require (
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/npillmayer/nestext v0.1.3 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.3 // indirect
-	golang.org/x/crypto v0.36.0 // indirect
+	golang.org/x/crypto v0.45.0 // indirect
 	golang.org/x/exp v0.0.0-20250305212735-054e65f0b394 // indirect
-	golang.org/x/net v0.38.0 // indirect
-	golang.org/x/sys v0.31.0 // indirect
-	golang.org/x/term v0.30.0 // indirect
+	golang.org/x/net v0.47.0 // indirect
+	golang.org/x/sys v0.38.0 // indirect
+	golang.org/x/term v0.37.0 // indirect
 )
