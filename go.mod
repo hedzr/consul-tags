@@ -40,7 +40,7 @@ require (
 	github.com/hedzr/store/codecs/yaml v1.3.0 // indirect
 	github.com/hedzr/store/providers/env v1.3.0 // indirect
 	github.com/hedzr/store/providers/file v1.3.0 // indirect
-	github.com/hjson/hjson-go/v4 v4.4.0 // indirect
+	github.com/hjson/hjson-go/v4 v4.5.0 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
