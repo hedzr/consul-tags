@@ -119,8 +119,8 @@ github.com/hedzr/store/providers/env v1.3.0 h1:0jhWyFOkF+rSAw7kMv7XJ8sz9BHBHaynD
 github.com/hedzr/store/providers/env v1.3.0/go.mod h1:2gMeNYX6U7fOXGUs39eDiPSJq4yEK2BgGbJUw1SPr+g=
 github.com/hedzr/store/providers/file v1.3.0 h1:Hkxt3VeXjtEO/vgrAWpmu/BPs/Ste3neAsA6kBRvhoM=
 github.com/hedzr/store/providers/file v1.3.0/go.mod h1:m8VVP3928ki4fGLAKN40rPZUY7xR/p/P1rwEvTwl3Qg=
-github.com/hjson/hjson-go/v4 v4.4.0 h1:D/NPvqOCH6/eisTb5/ztuIS8GUvmpHaLOcNk1Bjr298=
-github.com/hjson/hjson-go/v4 v4.4.0/go.mod h1:KaYt3bTw3zhBjYqnXkYywcYctk0A2nxeEFTse3rH13E=
+github.com/hjson/hjson-go/v4 v4.5.0 h1:ZHLiZ+HaGqPOtEe8T6qY8QHnoEsAeBv8wqxniQAp+CY=
+github.com/hjson/hjson-go/v4 v4.5.0/go.mod h1:4zx6c7Y0vWcm8IRyVoQJUHAPJLXLvbG6X8nk1RLigSo=
 github.com/jpillora/backoff v1.0.0/go.mod h1:J/6gKK9jxlEcS3zixgDgUAsiuZ7yrSoa/FX5e0EB2j4=
 github.com/json-iterator/go v1.1.6/go.mod h1:+SdeFBvtyEkXs7REEP0seUULqWtbJapLOCVDaaPEHmU=
 github.com/json-iterator/go v1.1.9/go.mod h1:KdQUCv79m/52Kvf8AW2vK1V8akMuk1QjK/uOdHXbAo4=
